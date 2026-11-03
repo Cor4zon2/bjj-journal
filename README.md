@@ -8,7 +8,9 @@ See [ROADMAP.md](ROADMAP.md) for the plan, data model and phases.
 
 ## Status
 
-Phase 0 (foundations) in place: a hello page that calls the API's `/health` endpoint, linting, tests and CI.
+Phase 1 (technique library) done: 17 seed techniques across guard pulls, the De La Riva tree and white belt fundamentals. Browse and filter them, then edit steps, key details, notes and mastery from a phone. YouTube links play inline and Instagram Reels open in the app.
+
+No video links are seeded. Add your own from a technique page; when a technique has none, the page offers a YouTube search.
 
 ## Getting started
 
@@ -23,7 +25,7 @@ Phase 0 (foundations) in place: a hello page that calls the API's `/health` endp
 make dev
 ```
 
-This starts Postgres, the FastAPI backend and the Vite frontend with hot reload. Open http://localhost:5173: the page should say **API is ok**. The API runs on http://localhost:8000 (interactive docs at http://localhost:8000/docs).
+This starts Postgres, applies migrations, loads the seed techniques, and runs the FastAPI backend and the Vite frontend with hot reload. Open http://localhost:5173 to see the technique library. The API runs on http://localhost:8000 (interactive docs at http://localhost:8000/docs).
 
 Stop it with `Ctrl+C`, or `make down` if it runs in the background.
 
@@ -31,6 +33,16 @@ Stop it with `Ctrl+C`, or `make down` if it runs in the background.
 
 ```bash
 make install
+```
+
+Start Postgres yourself (or `docker compose up db`), then:
+
+```bash
+make migrate
+```
+
+```bash
+make seed
 ```
 
 ```bash
@@ -48,6 +60,16 @@ Defaults work for local development. To override them, copy the examples:
 - `backend/.env.example` → `backend/.env`
 - `frontend/.env.example` → `frontend/.env.local`
 
+### Database and seed data
+
+- Migrations live in `backend/alembic/`. After changing a model, create one with `cd backend && uv run alembic revision --autogenerate -m "what changed"`.
+- Seed techniques live in `backend/app/seed/techniques.yaml`. `make seed` adds the techniques and positions that are missing, matched by slug. It never overwrites existing ones, so your notes and mastery levels are safe.
+- `cd backend && uv run python -m app.seed --reset` wipes the library and reloads the seed. This deletes your notes and mastery levels.
+
+### API types
+
+The frontend's TypeScript types come from the backend's OpenAPI schema. After changing an API schema, run `make api-types`. CI fails if `frontend/openapi.json` or `frontend/src/api/schema.ts` is out of date.
+
 ### Checks
 
 | Command | What it runs |
@@ -58,7 +80,7 @@ Defaults work for local development. To override them, copy the examples:
 | `make check` | All of the above, same as CI |
 | `make format` | Auto-fix formatting |
 
-GitHub Actions runs the same checks (plus a production build of the frontend) on every push and pull request; see `.github/workflows/ci.yml`.
+Backend tests use in-memory SQLite by default. Set `TEST_DATABASE_URL` to run them against a Postgres database, which the tests will wipe. GitHub Actions runs the same checks on every push and pull request, with backend tests on both SQLite and Postgres, plus a production build of the frontend; see `.github/workflows/ci.yml`.
 
 ## Project layout
 
