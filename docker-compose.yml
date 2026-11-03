@@ -19,7 +19,10 @@ services:
 
   backend:
     build: ./backend
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    # Apply migrations and load any missing seed techniques, then start the API.
+    command: >-
+      sh -c "alembic upgrade head && python -m app.seed &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     environment:
       DATABASE_URL: postgresql+psycopg://bjj:bjj@db:5432/bjj_journal
       CORS_ORIGINS: '["http://localhost:5173"]'
