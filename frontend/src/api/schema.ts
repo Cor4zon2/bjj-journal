@@ -296,6 +296,47 @@ export interface paths {
         patch: operations["update_mistake_mistakes__mistake_id__patch"];
         trace?: never;
     };
+    "/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Profile */
+        get: operations["read_profile_profile_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Profile
+         * @description Set belt and stripes, or the current focus techniques.
+         */
+        patch: operations["update_profile_profile_patch"];
+        trace?: never;
+    };
+    "/progress": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read Progress
+         * @description Belt, classes and mat time, stats, weekly streak, focus techniques and top mistake.
+         */
+        get: operations["read_progress_progress_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -621,6 +662,63 @@ export interface components {
             /** Description */
             description?: string | null;
         };
+        /** ProfileRead */
+        ProfileRead: {
+            /**
+             * Belt
+             * @enum {string}
+             */
+            belt: "white" | "blue" | "purple" | "brown" | "black";
+            /** Stripes */
+            stripes: number;
+            /** Focus Technique Ids */
+            focus_technique_ids: number[];
+        };
+        /**
+         * ProfileUpdate
+         * @description Partial update. The belt is only ever set by hand: the app never promotes you.
+         */
+        ProfileUpdate: {
+            /** Belt */
+            belt?: ("white" | "blue" | "purple" | "brown" | "black") | null;
+            /** Stripes */
+            stripes?: number | null;
+            /**
+             * Focus Technique Ids
+             * @description Current focus techniques, in order. At most 5.
+             */
+            focus_technique_ids?: number[] | null;
+        };
+        /**
+         * ProgressRead
+         * @description Everything the Home screen shows, in one request.
+         */
+        ProgressRead: {
+            /**
+             * Today
+             * Format: date
+             */
+            today: string;
+            /**
+             * Belt
+             * @enum {string}
+             */
+            belt: "white" | "blue" | "purple" | "brown" | "black";
+            /** Stripes */
+            stripes: number;
+            /** Classes */
+            classes: number;
+            /** Classes This Month */
+            classes_this_month: number;
+            /** Mat Hours */
+            mat_hours: number;
+            streak: components["schemas"]["StreakRead"];
+            /** Stats */
+            stats: components["schemas"]["StatRead"][];
+            /** Focus */
+            focus: components["schemas"]["TechniqueSummary"][];
+            top_mistake: components["schemas"]["TopMistakeRead"] | null;
+        };
         /**
          * SessionMistakeWrite
          * @description A mistake inside a class log. Send `id` to keep an existing mistake when editing a class.
@@ -682,6 +780,39 @@ export interface components {
              * @enum {string}
              */
             kind: "taught" | "drilled" | "hit_in_rolling";
+        };
+        /** StatRead */
+        StatRead: {
+            /**
+             * Stat
+             * @enum {string}
+             */
+            stat: "guard" | "sweeps" | "passing" | "escapes" | "submissions" | "takedowns";
+            /**
+             * Value
+             * @description 0-10: mastery points over the most the stat could hold.
+             */
+            value: number;
+            /** Techniques */
+            techniques: number;
+            /** Points */
+            points: number;
+            /** Max Points */
+            max_points: number;
+        };
+        /** StreakRead */
+        StreakRead: {
+            /**
+             * Weeks
+             * @description Consecutive weeks with a class, this week included if done.
+             */
+            weeks: number;
+            /** Best Weeks */
+            best_weeks: number;
+            /** Trained This Week */
+            trained_this_week: boolean;
+            /** Last Class */
+            last_class: string | null;
         };
         /** TechniqueCreate */
         TechniqueCreate: {
@@ -766,6 +897,11 @@ export interface components {
             summary: string;
             /** Mastery */
             mastery: number;
+            /**
+             * Locked
+             * @description True until every prerequisite reaches Drilled.
+             */
+            locked: boolean;
             /** Times Hit */
             times_hit: number;
             /** Gi Only */
@@ -813,6 +949,11 @@ export interface components {
             name: string;
             /** Mastery */
             mastery: number;
+            /**
+             * Locked
+             * @description True until every prerequisite reaches Drilled.
+             */
+            locked: boolean;
         };
         /**
          * TechniqueSummary
@@ -839,6 +980,11 @@ export interface components {
             summary: string;
             /** Mastery */
             mastery: number;
+            /**
+             * Locked
+             * @description True until every prerequisite reaches Drilled.
+             */
+            locked: boolean;
             /** Times Hit */
             times_hit: number;
             /** Gi Only */
@@ -879,6 +1025,28 @@ export interface components {
             gi_only?: boolean | null;
             /** Prereq Ids */
             prereq_ids?: number[] | null;
+        };
+        /** TopMistakeRead */
+        TopMistakeRead: {
+            /**
+             * Count
+             * @description Times this month, not counting fixed ones.
+             */
+            count: number;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "posture" | "grips" | "timing" | "hook_retention" | "defense" | "other";
+            /**
+             * Description
+             * @description The most recent one of the group.
+             */
+            description: string;
+            /** Mistake Id */
+            mistake_id: number;
+            technique: components["schemas"]["TechniqueRef"] | null;
+            position: components["schemas"]["PositionRef"] | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -1812,6 +1980,91 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MistakeWithSession"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_profile_profile_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileRead"];
+                };
+            };
+        };
+    };
+    update_profile_profile_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProfileUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_progress_progress_get: {
+        parameters: {
+            query?: {
+                /** @description The phone's local date. Defaults to the server's date. */
+                today?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProgressRead"];
                 };
             };
             /** @description Validation Error */

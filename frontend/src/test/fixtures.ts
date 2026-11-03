@@ -2,6 +2,7 @@ import type {
   ClassSession,
   Mistake,
   Position,
+  Progress,
   Technique,
   TechniqueSummary,
   VideoLink,
@@ -45,6 +46,7 @@ export function makeTechnique(overrides: Partial<Technique> = {}): Technique {
     summary: 'Push the hip, pull the ankle.',
     mastery: 1,
     mastery_name: 'Seen',
+    locked: false,
     times_hit: 0,
     gi_only: false,
     from_position: ref(positions[1]),
@@ -54,8 +56,10 @@ export function makeTechnique(overrides: Partial<Technique> = {}): Technique {
     steps: ['Grab the ankle', 'Foot on the hip', 'Push and pull'],
     key_details: ['Opposite directions'],
     notes: '',
-    prereqs: [{ id: 5, slug: 'dlr-grips', name: 'DLR grips', mastery: 2 }],
-    unlocks: [{ id: 11, slug: 'dlr-back-take', name: 'DLR to back take', mastery: 0 }],
+    prereqs: [{ id: 5, slug: 'dlr-grips', name: 'DLR grips', mastery: 2, locked: false }],
+    unlocks: [
+      { id: 11, slug: 'dlr-back-take', name: 'DLR to back take', mastery: 0, locked: true },
+    ],
     videos: [youtubeVideo, reel],
     common_mistakes: [
       {
@@ -82,6 +86,7 @@ export function summary(t: Technique): TechniqueSummary {
     summary: t.summary,
     mastery: t.mastery,
     mastery_name: t.mastery_name,
+    locked: t.locked,
     times_hit: t.times_hit,
     gi_only: t.gi_only,
     from_position: t.from_position,
@@ -112,13 +117,14 @@ export const techniqueList: TechniqueSummary[] = [
       type: 'entry',
       stat: 'guard',
       mastery: 0,
-      mastery_name: 'Locked',
+      mastery_name: 'Not started',
+      locked: true,
     }),
   ),
 ]
 
 export function makeSession(overrides: Partial<ClassSession> = {}): ClassSession {
-  const tripod = { id: 10, slug: 'tripod-sweep', name: 'Tripod sweep', mastery: 1 }
+  const tripod = { id: 10, slug: 'tripod-sweep', name: 'Tripod sweep', mastery: 1, locked: false }
   return {
     id: 1,
     client_id: null,
@@ -157,6 +163,43 @@ export function makeMistake(overrides: Partial<Mistake> = {}): Mistake {
   return {
     ...session.mistakes[0],
     session: { id: session.id, date: session.date, type: session.type },
+    ...overrides,
+  }
+}
+
+export function makeProgress(overrides: Partial<Progress> = {}): Progress {
+  const stat = (stat: Progress['stats'][number]['stat'], value: number, techniques: number) => ({
+    stat,
+    value,
+    techniques,
+    points: Math.round((value * techniques * 5) / 10),
+    max_points: techniques * 5,
+  })
+  return {
+    today: '2026-11-03',
+    belt: 'white',
+    stripes: 1,
+    classes: 38,
+    classes_this_month: 2,
+    mat_hours: 75.5,
+    streak: { weeks: 5, best_weeks: 7, trained_this_week: true, last_class: '2026-11-02' },
+    stats: [
+      stat('guard', 2.6, 7),
+      stat('sweeps', 2, 4),
+      stat('passing', 0, 0),
+      stat('escapes', 2.7, 3),
+      stat('submissions', 2, 2),
+      stat('takedowns', 0, 0),
+    ],
+    focus: [techniqueList[1], techniqueList[0]],
+    top_mistake: {
+      count: 3,
+      category: 'hook_retention',
+      description: 'DLR hook too shallow',
+      mistake_id: 7,
+      technique: { id: 10, slug: 'tripod-sweep', name: 'Tripod sweep', mastery: 1, locked: false },
+      position: null,
+    },
     ...overrides,
   }
 }

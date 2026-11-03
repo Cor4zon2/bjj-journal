@@ -17,7 +17,7 @@ VIDEO_SOURCES: tuple[str, ...] = get_args(VideoSource)
 MASTERY_MIN = 0
 MASTERY_MAX = 5
 MASTERY_NAMES: dict[int, str] = {
-    0: "Locked",
+    0: "Not started",
     1: "Seen",
     2: "Drilled",
     3: "Hit in rolling",
@@ -37,3 +37,19 @@ MISTAKE_STATUSES: tuple[str, ...] = get_args(MistakeStatus)
 
 ENERGY_MIN = 1
 ENERGY_MAX = 5
+
+# ---- Progress -------------------------------------------------------------------
+
+Belt = Literal["white", "blue", "purple", "brown", "black"]
+BELTS: tuple[str, ...] = get_args(Belt)
+STRIPES_MIN = 0
+STRIPES_MAX = 4
+
+# A technique unlocks once every prerequisite reaches this mastery level (Drilled).
+UNLOCK_MASTERY = 2
+
+# Logging a technique in a class raises its mastery to at least this level. Never lowers it.
+KIND_MASTERY: dict[str, int] = {"taught": 1, "drilled": 2, "hit_in_rolling": 3}
+
+# Every class is a 2-hour Gi class unless a duration was logged.
+DEFAULT_CLASS_MINUTES = 120

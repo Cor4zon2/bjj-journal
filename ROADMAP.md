@@ -29,7 +29,7 @@ Design mockups for every screen: [BJJ Journal — App Design](https://claude.ai/
 
 | Level | Name | Meaning |
 |---|---|---|
-| 0 | Locked | Prerequisites not yet drilled |
+| 0 | Not started | Not seen yet |
 | 1 | Seen | Shown in class or watched |
 | 2 | Drilled | Drilled with a cooperative partner |
 | 3 | Hit in rolling | Landed it in sparring at least once |
@@ -38,9 +38,11 @@ Design mockups for every screen: [BJJ Journal — App Design](https://claude.ai/
 
 No XP, player levels or achievements: progress is shown by technique mastery, stats and the training streak.
 
-- **Stats:** each stat (Guard, Sweeps, …) = sum of mastery levels of techniques in that category, scaled 0–10.
-- **Unlocks:** a technique unlocks when all of its prerequisites reach **Drilled**.
-- **Streak:** consecutive weeks with at least one logged class.
+- **Stats:** each stat (Guard, Sweeps, …) = sum of mastery levels of techniques in that category, scaled 0–10 against the most it could hold (every technique Mastered). A stat with no techniques is 0.
+- **Unlocks:** a technique is **locked** until all of its prerequisites reach **Drilled**. Locked is shown alongside the mastery level, not as a level: a locked technique can still be Seen in class.
+- **Logging raises mastery:** a technique logged as taught goes to at least Seen, drilled to at least Drilled, hit in rolling to at least Hit in rolling. It never lowers a level; levels 4 and 5 are set by hand.
+- **Streak:** consecutive weeks (Monday to Sunday) with at least one logged class. The current week counts as in progress, so the streak is kept until a week ends without a class.
+- **Top mistake this month:** the most frequent not-yet-fixed mistake this month, grouped by technique (or position) and category.
 - **Belt:** set manually. The app never promotes you.
 
 ---
@@ -107,7 +109,7 @@ Alternative if running on a personal VPS: the same `docker-compose.yml` with a r
 ## 3. Data model
 
 ```
-profile          id, belt, stripes, focus_technique_ids[], created_at
+profile          id (single row), belt, stripes (0–4), focus_technique_ids[] (max 5), created_at
 position         id, name, category (guard/top/bottom/standing/back), description
 technique        id, name, type (pull/sweep/submission/pass/escape/takedown/entry/control),
                  stat (guard/sweeps/passing/escapes/submissions/takedowns),
@@ -175,10 +177,10 @@ Deploying this early means every later phase can be used after class straight aw
 **Done when:** a full class can be logged on the phone in under 2 minutes, mistakes included.
 
 ### Phase 4 — Progress and Home
-- [ ] Stats calculation and weekly streak
-- [ ] Unlock rules from prerequisites
-- [ ] Home screen: belt & stripes, classes and mat time, stats, streak, focus techniques, top mistake, log button
-- [ ] Unit tests for every stats and unlock rule
+- [x] Stats calculation and weekly streak
+- [x] Unlock rules from prerequisites
+- [x] Home screen: belt & stripes, classes and mat time, stats, streak, focus techniques, top mistake, log button
+- [x] Unit tests for every stats and unlock rule
 
 **Done when:** logging a class updates the stats and streak on Home, and raising a technique to Drilled unlocks the next one.
 

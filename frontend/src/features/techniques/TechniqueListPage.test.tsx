@@ -48,7 +48,7 @@ describe('Technique list', () => {
     await screen.findByText('3 techniques')
 
     await userEvent.selectOptions(screen.getByLabelText('Position'), 'De La Riva guard')
-    await userEvent.selectOptions(screen.getByLabelText('Mastery'), '0 · Locked')
+    await userEvent.selectOptions(screen.getByLabelText('Mastery'), '0 · Not started')
     await userEvent.type(screen.getByLabelText('Search techniques'), 'bolo')
 
     await waitFor(() =>

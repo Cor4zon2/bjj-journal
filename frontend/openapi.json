@@ -1455,6 +1455,135 @@
           }
         }
       }
+    },
+    "/profile": {
+      "get": {
+        "tags": [
+          "progress"
+        ],
+        "summary": "Read Profile",
+        "operationId": "read_profile_profile_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileRead"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "progress"
+        ],
+        "summary": "Update Profile",
+        "description": "Set belt and stripes, or the current focus techniques.",
+        "operationId": "update_profile_profile_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/progress": {
+      "get": {
+        "tags": [
+          "progress"
+        ],
+        "summary": "Read Progress",
+        "description": "Belt, classes and mat time, stats, weekly streak, focus techniques and top mistake.",
+        "operationId": "read_progress_progress_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "today",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The phone's local date. Defaults to the server's date.",
+              "title": "Today"
+            },
+            "description": "The phone's local date. Defaults to the server's date."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProgressRead"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -2465,6 +2594,170 @@
         "type": "object",
         "title": "PositionUpdate"
       },
+      "ProfileRead": {
+        "properties": {
+          "belt": {
+            "type": "string",
+            "enum": [
+              "white",
+              "blue",
+              "purple",
+              "brown",
+              "black"
+            ],
+            "title": "Belt"
+          },
+          "stripes": {
+            "type": "integer",
+            "title": "Stripes"
+          },
+          "focus_technique_ids": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Focus Technique Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "belt",
+          "stripes",
+          "focus_technique_ids"
+        ],
+        "title": "ProfileRead"
+      },
+      "ProfileUpdate": {
+        "properties": {
+          "belt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "white",
+                  "blue",
+                  "purple",
+                  "brown",
+                  "black"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Belt"
+          },
+          "stripes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 4.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stripes"
+          },
+          "focus_technique_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "integer"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focus Technique Ids",
+            "description": "Current focus techniques, in order. At most 5."
+          }
+        },
+        "type": "object",
+        "title": "ProfileUpdate",
+        "description": "Partial update. The belt is only ever set by hand: the app never promotes you."
+      },
+      "ProgressRead": {
+        "properties": {
+          "today": {
+            "type": "string",
+            "format": "date",
+            "title": "Today"
+          },
+          "belt": {
+            "type": "string",
+            "enum": [
+              "white",
+              "blue",
+              "purple",
+              "brown",
+              "black"
+            ],
+            "title": "Belt"
+          },
+          "stripes": {
+            "type": "integer",
+            "title": "Stripes"
+          },
+          "classes": {
+            "type": "integer",
+            "title": "Classes"
+          },
+          "classes_this_month": {
+            "type": "integer",
+            "title": "Classes This Month"
+          },
+          "mat_hours": {
+            "type": "number",
+            "title": "Mat Hours"
+          },
+          "streak": {
+            "$ref": "#/components/schemas/StreakRead"
+          },
+          "stats": {
+            "items": {
+              "$ref": "#/components/schemas/StatRead"
+            },
+            "type": "array",
+            "title": "Stats"
+          },
+          "focus": {
+            "items": {
+              "$ref": "#/components/schemas/TechniqueSummary"
+            },
+            "type": "array",
+            "title": "Focus"
+          },
+          "top_mistake": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TopMistakeRead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "today",
+          "belt",
+          "stripes",
+          "classes",
+          "classes_this_month",
+          "mat_hours",
+          "streak",
+          "stats",
+          "focus",
+          "top_mistake"
+        ],
+        "title": "ProgressRead",
+        "description": "Everything the Home screen shows, in one request."
+      },
       "SessionMistakeWrite": {
         "properties": {
           "technique_id": {
@@ -2616,6 +2909,85 @@
           "kind"
         ],
         "title": "SessionTechniqueWrite"
+      },
+      "StatRead": {
+        "properties": {
+          "stat": {
+            "type": "string",
+            "enum": [
+              "guard",
+              "sweeps",
+              "passing",
+              "escapes",
+              "submissions",
+              "takedowns"
+            ],
+            "title": "Stat"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value",
+            "description": "0-10: mastery points over the most the stat could hold."
+          },
+          "techniques": {
+            "type": "integer",
+            "title": "Techniques"
+          },
+          "points": {
+            "type": "integer",
+            "title": "Points"
+          },
+          "max_points": {
+            "type": "integer",
+            "title": "Max Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "stat",
+          "value",
+          "techniques",
+          "points",
+          "max_points"
+        ],
+        "title": "StatRead"
+      },
+      "StreakRead": {
+        "properties": {
+          "weeks": {
+            "type": "integer",
+            "title": "Weeks",
+            "description": "Consecutive weeks with a class, this week included if done."
+          },
+          "best_weeks": {
+            "type": "integer",
+            "title": "Best Weeks"
+          },
+          "trained_this_week": {
+            "type": "boolean",
+            "title": "Trained This Week"
+          },
+          "last_class": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Class"
+          }
+        },
+        "type": "object",
+        "required": [
+          "weeks",
+          "best_weeks",
+          "trained_this_week",
+          "last_class"
+        ],
+        "title": "StreakRead"
       },
       "TechniqueCreate": {
         "properties": {
@@ -2795,6 +3167,11 @@
             "type": "integer",
             "title": "Mastery"
           },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked",
+            "description": "True until every prerequisite reaches Drilled."
+          },
           "times_hit": {
             "type": "integer",
             "title": "Times Hit"
@@ -2916,6 +3293,7 @@
           "stat",
           "summary",
           "mastery",
+          "locked",
           "times_hit",
           "gi_only",
           "from_position",
@@ -2952,6 +3330,11 @@
           "mastery": {
             "type": "integer",
             "title": "Mastery"
+          },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked",
+            "description": "True until every prerequisite reaches Drilled."
           }
         },
         "type": "object",
@@ -2959,7 +3342,8 @@
           "id",
           "slug",
           "name",
-          "mastery"
+          "mastery",
+          "locked"
         ],
         "title": "TechniqueRef"
       },
@@ -3011,6 +3395,11 @@
             "type": "integer",
             "title": "Mastery"
           },
+          "locked": {
+            "type": "boolean",
+            "title": "Locked",
+            "description": "True until every prerequisite reaches Drilled."
+          },
           "times_hit": {
             "type": "integer",
             "title": "Times Hit"
@@ -3054,6 +3443,7 @@
           "stat",
           "summary",
           "mastery",
+          "locked",
           "times_hit",
           "gi_only",
           "from_position",
@@ -3244,6 +3634,66 @@
         "type": "object",
         "title": "TechniqueUpdate",
         "description": "Partial update: only the fields sent are changed. `null` clears a position."
+      },
+      "TopMistakeRead": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count",
+            "description": "Times this month, not counting fixed ones."
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "posture",
+              "grips",
+              "timing",
+              "hook_retention",
+              "defense",
+              "other"
+            ],
+            "title": "Category"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description",
+            "description": "The most recent one of the group."
+          },
+          "mistake_id": {
+            "type": "integer",
+            "title": "Mistake Id"
+          },
+          "technique": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TechniqueRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "position": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PositionRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "count",
+          "category",
+          "description",
+          "mistake_id",
+          "technique",
+          "position"
+        ],
+        "title": "TopMistakeRead"
       },
       "ValidationError": {
         "properties": {

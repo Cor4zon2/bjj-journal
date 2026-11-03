@@ -1,4 +1,5 @@
 import type {
+  Belt,
   ClassType,
   MistakeCategory,
   MistakeStatus,
@@ -8,7 +9,7 @@ import type {
 } from '../api/types'
 
 export const MASTERY_LEVELS = [
-  { level: 0, name: 'Locked', hint: 'Prerequisites not yet drilled' },
+  { level: 0, name: 'Not started', hint: 'Not seen yet' },
   { level: 1, name: 'Seen', hint: 'Shown in class or watched' },
   { level: 2, name: 'Drilled', hint: 'Drilled with a cooperative partner' },
   { level: 3, name: 'Hit in rolling', hint: 'Landed it in sparring at least once' },
@@ -17,6 +18,9 @@ export const MASTERY_LEVELS = [
 ] as const
 
 export const MAX_MASTERY = 5
+
+/** A technique unlocks when every prerequisite reaches this level (Drilled). */
+export const UNLOCK_MASTERY = 2
 
 export const TECHNIQUE_TYPES: { value: TechniqueType; label: string }[] = [
   { value: 'pull', label: 'Guard pull' },
@@ -108,4 +112,36 @@ export function formatDate(isoDate: string): string {
 export function today(now: Date = new Date()): string {
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+}
+
+export const BELTS: { value: Belt; label: string }[] = [
+  { value: 'white', label: 'White belt' },
+  { value: 'blue', label: 'Blue belt' },
+  { value: 'purple', label: 'Purple belt' },
+  { value: 'brown', label: 'Brown belt' },
+  { value: 'black', label: 'Black belt' },
+]
+
+export const MAX_STRIPES = 4
+
+/** "White belt · 1 stripe" */
+export function beltLabel(belt: Belt, stripes: number): string {
+  const name = BELTS.find((b) => b.value === belt)?.label ?? belt
+  if (stripes === 0) return name
+  return `${name} · ${stripes} ${stripes === 1 ? 'stripe' : 'stripes'}`
+}
+
+/** "Tuesday, 3 November" for a `YYYY-MM-DD` date. */
+export function formatLongDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  return new Date(year, month - 1, day).toLocaleDateString('en-GB', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  })
+}
+
+/** "1 time", "3 times" */
+export function times(count: number): string {
+  return `${count} ${count === 1 ? 'time' : 'times'}`
 }

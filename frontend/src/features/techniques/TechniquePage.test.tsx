@@ -189,3 +189,92 @@ describe('Technique page', () => {
     expect(screen.getByRole('link', { name: '← All techniques' })).toBeInTheDocument()
   })
 })
+
+describe('Technique page: progress', () => {
+  function progressApi(technique: Technique, focus: number[] = []) {
+    let profile = { belt: 'white', stripes: 1, focus_technique_ids: focus }
+    let current = technique
+    return mockApi(
+      route('GET', `/techniques/by-slug/${technique.slug}`, () => Response.json(current)),
+      route('PATCH', `/techniques/${technique.id}`, (body) => {
+        const mastery = (body as TechniqueUpdate).mastery ?? current.mastery
+        // Like the API: unlocks follow the new level.
+        current = {
+          ...current,
+          mastery,
+          unlocks: current.unlocks.map((u) => ({ ...u, locked: mastery < 2 })),
+        }
+        return Response.json(current)
+      }),
+      route('GET', '/profile', () => Response.json(profile)),
+      route('PATCH', '/profile', (body) => {
+        profile = { ...profile, ...(body as object) }
+        return Response.json(profile)
+      }),
+    )
+  }
+
+  it('adds the technique to the focus list on Home and removes it again', async () => {
+    const fetchMock = progressApi(makeTechnique(), [20])
+    const user = userEvent.setup()
+    renderApp('/techniques/tripod-sweep')
+
+    const focus = await screen.findByRole('button', { name: '☆ Focus' })
+    expect(focus).toHaveAttribute('aria-pressed', 'false')
+    await user.click(focus)
+
+    expect(calls(fetchMock)).toContainEqual([
+      'PATCH',
+      '/profile',
+      { focus_technique_ids: [20, 10] },
+    ])
+    await user.click(await screen.findByRole('button', { name: '★ Focus', pressed: true }))
+    expect(calls(fetchMock)).toContainEqual(['PATCH', '/profile', { focus_technique_ids: [20] }])
+  })
+
+  it('allows at most five focus techniques', async () => {
+    progressApi(makeTechnique(), [1, 2, 3, 4, 5])
+
+    renderApp('/techniques/tripod-sweep')
+
+    expect(await screen.findByRole('button', { name: '☆ Focus' })).toBeDisabled()
+    expect(screen.getByText(/already focus on 5 techniques/)).toBeInTheDocument()
+  })
+
+  it('says which prerequisites a locked technique is waiting for', async () => {
+    progressApi(
+      makeTechnique({
+        slug: 'dlr-back-take',
+        name: 'DLR to back take',
+        mastery: 0,
+        locked: true,
+        prereqs: [
+          { id: 10, slug: 'tripod-sweep', name: 'Tripod sweep', mastery: 1, locked: false },
+        ],
+        unlocks: [],
+      }),
+    )
+
+    renderApp('/techniques/dlr-back-take')
+
+    expect(await screen.findByText('🔒 Locked')).toBeInTheDocument()
+    expect(screen.getByText(/it unlocks when Tripod sweep reaches Drilled/)).toBeInTheDocument()
+  })
+
+  it('announces the techniques unlocked by reaching Drilled', async () => {
+    progressApi(makeTechnique({ mastery: 1 }))
+    const user = userEvent.setup()
+    renderApp('/techniques/tripod-sweep')
+
+    expect(
+      await screen.findByRole('link', { name: /^DLR to back take\s*\(locked\)/ }),
+    ).toBeInTheDocument()
+    await user.click(screen.getByRole('radio', { name: '2: Drilled' }))
+
+    const notice = await screen.findByText(/Unlocked:/)
+    expect(within(notice).getByRole('link', { name: 'DLR to back take' })).toHaveAttribute(
+      'href',
+      '/techniques/dlr-back-take',
+    )
+  })
+})
