@@ -178,12 +178,12 @@ Each phase ends with something usable and deployed-ready. Check boxes are update
 Deploying this early means every later phase can be used after class straight away.
 
 ### Phase 3 — Class log and mistakes
-- [ ] Class session API + "Log today's class" form, built for under 2 minutes on a phone
-- [ ] Pick techniques covered (taught / drilled / hit in rolling) with quick search
-- [ ] Add my mistakes inline in the log, linked to a technique or position
-- [ ] Mistakes list with status changes: Open → Working on it → Fixed
-- [ ] Class history with edit and delete
-- [ ] Offline draft: a half-filled log survives losing signal in the gym
+- [x] Class session API + "Log today's class" form, built for under 2 minutes on a phone
+- [x] Pick techniques covered (taught / drilled / hit in rolling) with quick search
+- [x] Add my mistakes inline in the log, linked to a technique or position
+- [x] Mistakes list with status changes: Open → Working on it → Fixed
+- [x] Class history with edit and delete
+- [x] Offline draft: a half-filled log survives losing signal in the gym
 
 **Done when:** a full class can be logged on the phone in under 2 minutes, mistakes included.
 

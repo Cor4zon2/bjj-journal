@@ -1,5 +1,10 @@
 import type {
+  ClassSession,
+  ClassSessionCreate,
+  ClassSessionUpdate,
   Health,
+  Mistake,
+  MistakeUpdate,
   Position,
   Technique,
   TechniqueFilters,
@@ -46,6 +51,11 @@ let onAuthFailure: AuthFailureHandler | null = null
 /** Called by the auth provider: the API rejected the token (401) or the account (403). */
 export function setAuthFailureHandler(handler: AuthFailureHandler | null): void {
   onAuthFailure = handler
+}
+
+/** True when the request never reached the API (no signal, server unreachable). */
+export function isNetworkError(error: unknown): boolean {
+  return !(error instanceof ApiError) && !(error instanceof DOMException)
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -107,4 +117,40 @@ export function addVideo(techniqueId: number, video: VideoLinkCreate): Promise<V
 
 export function deleteVideo(videoId: number): Promise<void> {
   return request(`/videos/${videoId}`, { method: 'DELETE' })
+}
+
+// ---- Class log ----------------------------------------------------------------
+
+export function listSessions(signal?: AbortSignal): Promise<ClassSession[]> {
+  return request('/sessions', { signal })
+}
+
+export function getSession(id: number, signal?: AbortSignal): Promise<ClassSession> {
+  return request(`/sessions/${id}`, { signal })
+}
+
+export function createSession(body: ClassSessionCreate): Promise<ClassSession> {
+  return request('/sessions', { method: 'POST', body: JSON.stringify(body) })
+}
+
+export function updateSession(id: number, changes: ClassSessionUpdate): Promise<ClassSession> {
+  return request(`/sessions/${id}`, { method: 'PATCH', body: JSON.stringify(changes) })
+}
+
+export function deleteSession(id: number): Promise<void> {
+  return request(`/sessions/${id}`, { method: 'DELETE' })
+}
+
+// ---- My mistakes --------------------------------------------------------------
+
+export function listMistakes(signal?: AbortSignal): Promise<Mistake[]> {
+  return request('/mistakes', { signal })
+}
+
+export function updateMistake(id: number, changes: MistakeUpdate): Promise<Mistake> {
+  return request(`/mistakes/${id}`, { method: 'PATCH', body: JSON.stringify(changes) })
+}
+
+export function deleteMistake(id: number): Promise<void> {
+  return request(`/mistakes/${id}`, { method: 'DELETE' })
 }
