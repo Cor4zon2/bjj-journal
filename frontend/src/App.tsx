@@ -1,46 +1,34 @@
-import { useEffect, useState } from 'react'
-import { getHealth, type Health } from './api/client'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { useState } from 'react'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
+import { createQueryClient } from './api/queryClient'
+import { AuthGate } from './auth/AuthGate'
+import { Layout } from './components/Layout'
+import { TechniqueListPage } from './features/techniques/TechniqueListPage'
+import { TechniquePage } from './features/techniques/TechniquePage'
 
-type ApiState =
-  { kind: 'loading' } | { kind: 'ok'; health: Health } | { kind: 'error'; message: string }
-
-export default function App() {
-  const [api, setApi] = useState<ApiState>({ kind: 'loading' })
-
-  useEffect(() => {
-    const controller = new AbortController()
-    getHealth(controller.signal)
-      .then((health) => setApi({ kind: 'ok', health }))
-      .catch((error: unknown) => {
-        if (controller.signal.aborted) return
-        setApi({ kind: 'error', message: error instanceof Error ? error.message : String(error) })
-      })
-    return () => controller.abort()
-  }, [])
-
+export function AppRoutes() {
   return (
-    <main className="flex min-h-svh flex-col items-center justify-center gap-6 bg-slate-950 p-6 text-slate-100">
-      <h1 className="text-4xl font-bold tracking-tight">BJJ Journal</h1>
-      <p className="text-slate-400">Oss! The mat is ready.</p>
-      <ApiStatus state={api} />
-    </main>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<Navigate to="/techniques" replace />} />
+        <Route path="techniques" element={<TechniqueListPage />} />
+        <Route path="techniques/:slug" element={<TechniquePage />} />
+        <Route path="*" element={<Navigate to="/techniques" replace />} />
+      </Route>
+    </Routes>
   )
 }
 
-function ApiStatus({ state }: { state: ApiState }) {
-  if (state.kind === 'loading') {
-    return <p role="status">Checking API…</p>
-  }
-  if (state.kind === 'error') {
-    return (
-      <p role="status" className="rounded-lg bg-red-900/60 px-4 py-2">
-        API unreachable: {state.message}
-      </p>
-    )
-  }
+export default function App() {
+  const [queryClient] = useState(createQueryClient)
   return (
-    <p role="status" className="rounded-lg bg-emerald-900/60 px-4 py-2">
-      API is {state.health.status} (v{state.health.version})
-    </p>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AuthGate>
+          <AppRoutes />
+        </AuthGate>
+      </BrowserRouter>
+    </QueryClientProvider>
   )
 }

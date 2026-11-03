@@ -1,0 +1,557 @@
+# Starting technique library: Gi, 1-stripe white belt, focus on guard pulling and De La Riva.
+#
+# Positions are described from my point of view. Mastery levels:
+#   0 Locked · 1 Seen · 2 Drilled · 3 Hit in rolling · 4 Hit on resisting partners · 5 Mastered
+# A technique unlocks once all of its prerequisites reach Drilled (2), so the starting
+# levels below are consistent with that rule.
+#
+# Load with `python -m app.seed`. Existing techniques (matched by slug) are never overwritten,
+# so my notes and mastery levels survive a re-run.
+
+positions:
+  - slug: standing
+    name: Standing
+    category: standing
+    description: Both players on their feet, gripping up.
+  - slug: closed-guard
+    name: Closed guard
+    category: guard
+    description: On my back with my legs locked around my opponent's waist.
+  - slug: collar-sleeve-guard
+    name: Collar-sleeve guard
+    category: guard
+    description: Open guard with a collar grip, a sleeve grip and a foot on the biceps.
+  - slug: de-la-riva-guard
+    name: De La Riva guard
+    category: guard
+    description: >-
+      Open guard with my outside leg hooked around the opponent's lead leg from the outside,
+      usually with a sleeve or collar grip.
+  - slug: top-after-sweep
+    name: Top (after sweep)
+    category: top
+    description: On top after a sweep, usually in combat base or passing position.
+  - slug: closed-guard-top
+    name: Closed guard (top)
+    category: top
+    description: Kneeling inside my opponent's closed guard.
+  - slug: mount
+    name: Mount
+    category: top
+    description: Sitting on my opponent's torso, knees on the mat.
+  - slug: mount-bottom
+    name: Mount (bottom)
+    category: bottom
+    description: Opponent is mounted on me.
+  - slug: side-control-bottom
+    name: Side control (bottom)
+    category: bottom
+    description: Opponent is chest to chest across my body.
+  - slug: back-control
+    name: Back control
+    category: back
+    description: Behind my opponent with hooks in and a seatbelt grip.
+
+techniques:
+  # ---- Guard pulls ------------------------------------------------------------
+  - slug: sit-down-guard-pull
+    name: Sit-down guard pull (to closed guard)
+    type: pull
+    stat: guard
+    from: standing
+    to: closed-guard
+    mastery: 2
+    summary: The safest way to bring the fight to the ground and land in closed guard.
+    steps:
+      - Get a collar grip and a sleeve grip before you start pulling.
+      - Step one foot deep between the opponent's feet and bend that knee.
+      - Sit down close to your own heel, keeping your back rounded.
+      - Pull the opponent forward with both grips as you sit, breaking their posture.
+      - Wrap your legs around their waist and cross your ankles high on their back.
+    key_details:
+      - Sit close to your heel; sitting far away leaves space and you land flat.
+      - Keep your chin tucked and back round, like rolling backwards.
+      - The grips do the pulling; the sit just takes your hips to the mat.
+    common_mistakes:
+      - title: Pulling without grips
+        why_it_happens: Rushing to the ground before the grips are set.
+        fix: Do not sit until you have at least a collar and a sleeve grip.
+      - title: Landing flat on the back
+        why_it_happens: Sitting too far from the opponent and falling backwards.
+        fix: Sit on your heel, close to their feet, and stay on your side with your back rounded.
+      - title: Leaving the foot on the mat in front of the opponent
+        why_it_happens: Forgetting to bring the second leg in after sitting.
+        fix: Immediately bring both legs up to the hips or waist; a planted foot invites a pass.
+      - title: Ankles crossed too low
+        why_it_happens: Closing the guard on the opponent's hips or thighs.
+        fix: Climb the legs up and cross your ankles above their belt.
+
+  - slug: collar-sleeve-guard-pull
+    name: Collar-sleeve guard pull
+    type: pull
+    stat: guard
+    from: standing
+    to: collar-sleeve-guard
+    mastery: 2
+    gi_only: true
+    prereqs: [sit-down-guard-pull]
+    summary: Pull guard into collar-sleeve with a foot on the biceps, ready to sweep.
+    steps:
+      - Grip the same-side collar deep and the opposite sleeve at the cuff.
+      - Place the foot on the sleeve side on the opponent's biceps.
+      - Sit down close to your other heel while keeping the foot on the biceps.
+      - Put your other foot on the hip or hook behind the knee.
+      - Keep tension with both grips and the biceps foot so they cannot step around.
+    key_details:
+      - The biceps foot and the sleeve grip control the same arm; keep them on the same side.
+      - Keep the sleeve grip tight to your chest, not at arm's length.
+      - Stay on your side, not flat, so you can follow the opponent's movement.
+    common_mistakes:
+      - title: Pulling without grips
+        why_it_happens: Jumping into the guard before the collar and sleeve are secured.
+        fix: Secure both grips first; the pull only starts when they are set.
+      - title: Biceps foot slips off
+        why_it_happens: Pushing with the toes instead of the sole, or no tension in the sleeve grip.
+        fix: Turn the foot slightly outwards and keep pulling the sleeve against it.
+      - title: Leaving the foot on the mat in front of the opponent
+        why_it_happens: The second leg stays down after sitting.
+        fix: Put the free foot on the hip or the far knee straight away.
+
+  - slug: pull-to-de-la-riva
+    name: Pull to De La Riva
+    type: pull
+    stat: guard
+    from: standing
+    to: de-la-riva-guard
+    mastery: 1
+    gi_only: true
+    prereqs: [collar-sleeve-guard-pull, dlr-hook-entry-and-retention]
+    summary: Pull guard and land straight in De La Riva with the hook already in.
+    steps:
+      - Get a collar grip and a sleeve grip on the side of the leg you will hook.
+      - Step your outside foot next to the opponent's lead foot.
+      - Sit down close to that heel and swim your leg around the outside of their lead leg.
+      - Hook your foot inside their thigh, toes pointing out.
+      - Switch the collar grip to the ankle or keep it, and put your other foot on the hip.
+    key_details:
+      - Sit close to the lead foot so the hook lands deep.
+      - Grab the ankle of the hooked leg as soon as you land so they cannot step away.
+      - Land on your side facing the hooked leg, never flat.
+    common_mistakes:
+      - title: Hook too shallow
+        why_it_happens: Sitting too far from the lead leg, so only the toes reach.
+        fix: Sit next to their heel; the hook should wrap until your knee touches their leg.
+      - title: Landing flat on the back
+        why_it_happens: Falling backwards instead of sitting on the heel.
+        fix: Sit down on your side, back rounded, chin tucked.
+      - title: Pulling without grips
+        why_it_happens: Trying to reach the leg before controlling the upper body.
+        fix: Collar and sleeve first, then the sit and the hook.
+
+  # ---- De La Riva tree --------------------------------------------------------
+  - slug: dlr-hook-entry-and-retention
+    name: DLR hook entry and retention
+    type: entry
+    stat: guard
+    from: collar-sleeve-guard
+    to: de-la-riva-guard
+    mastery: 2
+    summary: Get the De La Riva hook from open guard and keep it while the opponent moves.
+    steps:
+      - From open guard, grab the ankle of the opponent's lead leg.
+      - Bring your outside leg around the outside of that leg.
+      - Wrap the hook behind the thigh, toes pointing outwards.
+      - Put your other foot on the far hip or keep it ready to push the far knee.
+      - As they move, follow by turning on your side and re-adjusting the hook.
+    key_details:
+      - Knee of the hooking leg stays tight to their leg; that is what keeps the hook.
+      - The ankle grip pins their foot; without it the hook is easy to strip.
+      - Stay on your side and stay mobile, using your hips to follow.
+    common_mistakes:
+      - title: Hook too shallow
+        why_it_happens: Only the foot wraps, the knee is away from the leg.
+        fix: Pinch your knee against their leg and turn your toes outwards.
+      - title: Sitting flat on the butt
+        why_it_happens: Getting comfortable once the hook is in.
+        fix: Stay on your side, weight on the shoulder of the hooking side, ready to move.
+      - title: Letting the opponent's knee drop inside
+        why_it_happens: The hooked knee drops to the mat between your legs, killing the hook.
+        fix: Keep the far foot on the hip and push the knee out as soon as it starts to drop.
+      - title: No ankle grip
+        why_it_happens: Hands are busy with upper-body grips.
+        fix: Make the ankle the first grip; switch to the sleeve or belt only when the hook is set.
+
+  - slug: dlr-grips
+    name: "DLR grips: collar-sleeve, sleeve-ankle, belt"
+    type: control
+    stat: guard
+    from: de-la-riva-guard
+    to: de-la-riva-guard
+    mastery: 2
+    gi_only: true
+    prereqs: [dlr-hook-entry-and-retention]
+    summary: The three main grip setups from De La Riva and when to use each.
+    steps:
+      - "Collar-sleeve: same-side collar and far sleeve; best for breaking posture."
+      - "Sleeve-ankle: far sleeve and the ankle of the hooked leg; best for sweeps."
+      - "Belt: reach behind for the belt on the far side; best for back takes and spins."
+      - Choose the grip based on posture; upright opponent, use the sleeve to pull them forward.
+      - Always keep at least two points of control besides the hook.
+    key_details:
+      - Grip the sleeve at the cuff, fingers inside, and pull it to your chest.
+      - The ankle grip goes on the hooked leg, not the far leg.
+      - Change only one grip at a time; never let go of everything.
+    common_mistakes:
+      - title: No control of the far sleeve
+        why_it_happens: Gripping collars only, so their far arm is free to pass.
+        fix: Make the far sleeve one of your two grips in almost every setup.
+      - title: Gripping with straight arms
+        why_it_happens: Holding on at a distance instead of pulling in.
+        fix: Bend your elbows and pull the grip to your body.
+      - title: Switching all grips at once
+        why_it_happens: Trying to change setups too quickly.
+        fix: Swap one grip, keep the other and the hook until it is set.
+
+  - slug: tripod-sweep
+    name: Tripod sweep
+    type: sweep
+    stat: sweeps
+    from: de-la-riva-guard
+    to: top-after-sweep
+    mastery: 1
+    prereqs: [dlr-hook-entry-and-retention, dlr-grips]
+    summary: Push the hip, pull the ankle, and the opponent falls backwards.
+    steps:
+      - Grab the ankle of their near leg and the far sleeve.
+      - Put the foot of your hooking leg on their hip, the other hooks behind their far ankle.
+      - Pull the ankle towards you while you push the hip with your foot.
+      - When they fall, keep the ankle grip and come up to a seated position.
+      - Stand up in base and pass or establish top position.
+    key_details:
+      - Pull the ankle and push the hip at the same time, in opposite directions.
+      - Push through the hip, not the thigh.
+      - Keep the ankle grip during the stand-up; it stops them from recovering guard.
+    common_mistakes:
+      - title: Pushing with the foot on the thigh
+        why_it_happens: Foot placement drifts down the leg.
+        fix: Put the sole of your foot on the hip crease.
+      - title: Letting go of the ankle after the sweep
+        why_it_happens: Celebrating the fall instead of following it.
+        fix: Keep the ankle and use it to come up on top.
+      - title: Sitting flat on the butt
+        why_it_happens: No angle before sweeping.
+        fix: Turn on your side to get the angle before you push.
+
+  - slug: sickle-sweep
+    name: Sickle sweep
+    type: sweep
+    stat: sweeps
+    from: de-la-riva-guard
+    to: top-after-sweep
+    mastery: 1
+    prereqs: [dlr-hook-entry-and-retention, dlr-grips]
+    summary: Chop the far leg while pulling the near ankle, and the opponent falls back.
+    steps:
+      - Grab the ankle of the near leg and the far sleeve.
+      - Put one foot on the hip and slide the other behind their far ankle like a hook.
+      - Kick the far heel out with a sickle motion while pulling the near ankle.
+      - As they fall, come up holding the ankle.
+      - Stand up and establish top position.
+    key_details:
+      - The sickle chops the heel, not the calf.
+      - Combine it with the tripod; when they defend one, the other opens.
+      - Pull the near ankle tight to your chest during the chop.
+    common_mistakes:
+      - title: Chopping the calf instead of the heel
+        why_it_happens: The hooking foot sits too high.
+        fix: Slide the foot down until it is behind their heel.
+      - title: No ankle pull
+        why_it_happens: Using the legs only.
+        fix: Pull the near ankle as hard as you chop.
+      - title: Letting the opponent's knee drop inside
+        why_it_happens: The hip foot is not active during the setup.
+        fix: Keep pressure on the hip until the moment of the chop.
+
+  - slug: dlr-back-take
+    name: DLR to back take
+    type: entry
+    stat: guard
+    from: de-la-riva-guard
+    to: back-control
+    mastery: 0
+    prereqs: [tripod-sweep]
+    summary: Use the DLR hook and a belt grip to come up behind the opponent.
+    steps:
+      - From De La Riva, grab the far side of the belt behind the opponent.
+      - Kick your hooking leg up to off-balance them forward.
+      - Pull with the belt and slide under their legs towards their back.
+      - Insert your first hook, then the second.
+      - Take a seatbelt grip and finish the back take.
+    key_details:
+      - The belt grip is your connection; do not let go.
+      - Keep your DLR hook deep; it carries their weight.
+      - Hooks go in before you let go of the belt.
+    common_mistakes:
+      - title: Losing the belt grip
+        why_it_happens: Gripping the belt loosely or too close to the knot.
+        fix: Grip deep on the far side of the belt with a closed fist.
+      - title: Hook too shallow
+        why_it_happens: The DLR hook slips as they lean.
+        fix: Re-adjust the hook deep before pulling for the back.
+
+  - slug: berimbolo
+    name: Berimbolo
+    type: entry
+    stat: guard
+    from: de-la-riva-guard
+    to: back-control
+    mastery: 0
+    prereqs: [dlr-back-take]
+    summary: Long-term goal. An inverted spin under the opponent from DLR to take the back.
+    steps:
+      - From De La Riva, grab the belt or the far pant leg.
+      - Off-balance the opponent so they sit down.
+      - Invert onto your shoulders, spinning under their hips while keeping the hook.
+      - Come out behind them and grab their belt or lapel.
+      - Insert hooks and secure back control.
+    key_details:
+      - Do not invert on your neck; roll across your shoulders.
+      - The DLR hook stays in during the spin.
+      - Practise the inversion solo before drilling with a partner.
+    common_mistakes:
+      - title: Inverting on the neck
+        why_it_happens: Rolling straight back without turning the shoulders.
+        fix: Turn slightly and roll across the shoulder blades.
+      - title: Losing the hook during the spin
+        why_it_happens: The knee leaves the opponent's leg as you invert.
+        fix: Pinch the knee in and keep the hook until you reach the back.
+
+  # ---- White belt fundamentals ------------------------------------------------
+  - slug: closed-guard-posture-break
+    name: Closed guard posture break
+    type: control
+    stat: guard
+    from: closed-guard
+    to: closed-guard
+    mastery: 2
+    summary: Pull the opponent down so they cannot posture up and pass. Every attack starts here.
+    steps:
+      - Close your guard high, ankles crossed above the belt.
+      - Grip both collars or a collar and a sleeve.
+      - Pull with your arms while pulling your knees towards your chest.
+      - Bring their head down to your chest.
+      - Keep them broken down with your arms or an overhook while you set up an attack.
+    key_details:
+      - Arms and legs pull together; the legs do most of the work.
+      - Keep your ankles high so you can pull with the legs.
+      - Control their head and posture before you attack.
+    common_mistakes:
+      - title: Crossing ankles too low
+        why_it_happens: Closing the guard on the hips or thighs.
+        fix: Cross your ankles above their belt line.
+      - title: No posture break before attacking
+        why_it_happens: Going straight for the armbar or choke against an upright opponent.
+        fix: Break posture first, every time.
+      - title: Pulling with the arms only
+        why_it_happens: Forgetting the legs.
+        fix: Pull your knees towards your chest while pulling the grips.
+
+  - slug: scissor-sweep
+    name: Scissor sweep
+    type: sweep
+    stat: sweeps
+    from: closed-guard
+    to: mount
+    mastery: 1
+    prereqs: [closed-guard-posture-break]
+    summary: Classic closed guard sweep using a scissoring motion of the legs.
+    steps:
+      - Grip the collar and the same-side sleeve.
+      - Open your guard and shrimp to one side.
+      - Put your top shin across their belly, knee at their chest.
+      - Drop the bottom leg to the mat behind their knee.
+      - Pull the grips over your head as you scissor your legs, then come up to mount.
+    key_details:
+      - The shin across the belly lifts; the bottom leg chops.
+      - Pull them onto the shin before the scissor.
+      - Keep the sleeve grip so they cannot post with that arm.
+    common_mistakes:
+      - title: Not shrimping out first
+        why_it_happens: Trying to scissor from directly under the opponent.
+        fix: Shrimp to make an angle before placing the shin.
+      - title: Losing the sleeve grip
+        why_it_happens: Letting go to post.
+        fix: Keep the sleeve; the trapped arm is why they cannot base.
+      - title: No posture break before attacking
+        why_it_happens: Starting the sweep against an upright opponent.
+        fix: Break their posture and pull them forward onto your shin.
+
+  - slug: hip-bump-sweep
+    name: Hip bump sweep
+    type: sweep
+    stat: sweeps
+    from: closed-guard
+    to: mount
+    mastery: 1
+    prereqs: [closed-guard-posture-break]
+    summary: Sit up into the opponent and bump them over with your hips when they posture up.
+    steps:
+      - When they posture up, open your guard and sit up on one hand.
+      - Reach over their shoulder and trap their arm on the same side.
+      - Lift your hips high and drive them into the opponent.
+      - Roll them over the trapped arm.
+      - Land in mount.
+    key_details:
+      - Sit up while they are posturing up, timing beats strength.
+      - Post on your hand and lift your hips off the mat.
+      - Trap the arm; otherwise they post and stop the sweep.
+    common_mistakes:
+      - title: Hips stay on the mat
+        why_it_happens: Bumping with the shoulders instead of the hips.
+        fix: Post on your hand and drive your hips up into them.
+      - title: Not trapping the arm
+        why_it_happens: Reaching around the neck instead.
+        fix: Overhook their arm on the side you are sweeping to.
+      - title: Wrong timing
+        why_it_happens: Sitting up while they are pushing forward.
+        fix: Attack as they posture up; combine with the kimura or guillotine when they push back.
+
+  - slug: armbar-from-closed-guard
+    name: Armbar from closed guard
+    type: submission
+    stat: submissions
+    from: closed-guard
+    summary: Isolate an arm, angle out and extend it across your hips.
+    mastery: 1
+    prereqs: [closed-guard-posture-break]
+    steps:
+      - Break posture and control one arm by the sleeve or elbow.
+      - Put your foot on their hip on the opposite side and pivot your body to an angle.
+      - Bring your leg over their head while holding the arm to your chest.
+      - Squeeze your knees together and keep their thumb pointing up.
+      - Lift your hips to finish.
+    key_details:
+      - Pivot to an angle; trying from straight on almost never works.
+      - Keep the arm tight to your chest throughout.
+      - Knees pinched together so they cannot pull out or stack you.
+    common_mistakes:
+      - title: No angle
+        why_it_happens: Trying the armbar while facing them square.
+        fix: Foot on the hip, pivot until you are perpendicular.
+      - title: Leaving space between the knees
+        why_it_happens: Focusing on the arm and forgetting the legs.
+        fix: Pinch the knees and keep the leg heavy over the head.
+      - title: No posture break before attacking
+        why_it_happens: Going for the arm against an upright opponent.
+        fix: Pull them down first; then isolate the arm.
+
+  - slug: cross-collar-choke-closed-guard
+    name: Cross-collar choke from closed guard
+    type: submission
+    stat: submissions
+    from: closed-guard
+    mastery: 1
+    gi_only: true
+    prereqs: [closed-guard-posture-break]
+    summary: Two deep collar grips and an elbow pull to choke from closed guard.
+    steps:
+      - Break posture and open the collar with one hand.
+      - Insert the first hand deep in the collar, four fingers in, thumb out.
+      - Bring the second hand under the first, thumb in, deep on the other side.
+      - Pull them down and flare your elbows out to the sides.
+      - Keep pulling with the legs as you finish.
+    key_details:
+      - The first grip must be very deep, behind the ear.
+      - Rotate your wrists so the bony edge cuts in.
+      - Elbows out, not back.
+    common_mistakes:
+      - title: First grip too shallow
+        why_it_happens: Grabbing the collar at the chest.
+        fix: Walk the hand up until your knuckles touch the back of their neck.
+      - title: Pulling elbows back instead of out
+        why_it_happens: Trying to pull them closer.
+        fix: Flare the elbows sideways like opening a book.
+      - title: Crossing ankles too low
+        why_it_happens: No leg pull, so they posture out of the choke.
+        fix: Keep the guard high and pull them in with your legs.
+
+  - slug: mount-escape-upa
+    name: "Mount escape: trap and roll (upa)"
+    type: escape
+    stat: escapes
+    from: mount-bottom
+    to: closed-guard-top
+    mastery: 2
+    summary: Trap an arm and a leg on the same side, bridge and roll the opponent over.
+    steps:
+      - Trap one of their arms by grabbing the wrist or elbow tight to your body.
+      - Step your foot over their foot on the same side.
+      - Bring your other foot close to your butt.
+      - Bridge explosively over your shoulder towards the trapped side.
+      - Roll and land in their closed guard, posture up.
+    key_details:
+      - Arm and leg trapped on the same side.
+      - Bridge over the shoulder, not straight up.
+      - Posture up immediately when you land.
+    common_mistakes:
+      - title: Trapping arm and leg on different sides
+        why_it_happens: Rushing the setup.
+        fix: Check that the trapped arm and foot are on the side you roll towards.
+      - title: Bridging straight up
+        why_it_happens: Pushing with the hips but not turning.
+        fix: Bridge diagonally over your shoulder.
+      - title: Pushing with straight arms
+        why_it_happens: Panic from bottom mount.
+        fix: Keep elbows tight to the body and use the bridge, not the arms.
+
+  - slug: mount-escape-elbow-knee
+    name: "Mount escape: elbow-knee"
+    type: escape
+    stat: escapes
+    from: mount-bottom
+    to: closed-guard
+    mastery: 1
+    summary: Shrimp and use the elbow to recover half guard, then full guard.
+    steps:
+      - Bridge a little to make space, then turn on your side.
+      - Put your elbow on their knee and shrimp your hips away.
+      - Slide your bottom knee inside and trap their leg.
+      - Repeat on the other side if needed.
+      - Recover closed guard.
+    key_details:
+      - Elbows tight; never push their chest with straight arms.
+      - Shrimp your hips, not your shoulders.
+      - Small bridge first to create the space.
+    common_mistakes:
+      - title: Pushing their chest with straight arms
+        why_it_happens: Trying to bench press them off.
+        fix: Keep elbows in and use the elbow on the knee as a frame.
+      - title: Staying flat
+        why_it_happens: Forgetting to turn on the side before shrimping.
+        fix: Turn on your side first, then shrimp.
+
+  - slug: side-control-escape-shrimp
+    name: "Side control escape: shrimp to guard"
+    type: escape
+    stat: escapes
+    from: side-control-bottom
+    to: closed-guard
+    mastery: 1
+    summary: Frame, shrimp and put the knee back in to recover guard.
+    steps:
+      - Build frames with forearm on their neck and the other hand on their hip.
+      - Bridge into them to create space.
+      - Shrimp your hips away.
+      - Slide your knee into the space between you.
+      - Recover guard.
+    key_details:
+      - Frames block, they do not push.
+      - Bridge first, then shrimp.
+      - The knee closes the space as soon as it appears.
+    common_mistakes:
+      - title: Pushing with arms instead of framing
+        why_it_happens: Trying to push them away.
+        fix: Frames stay rigid; movement comes from the hips.
+      - title: Shrimping without bridging first
+        why_it_happens: Their weight pins your hips.
+        fix: Bridge into them to unload their weight, then shrimp.
