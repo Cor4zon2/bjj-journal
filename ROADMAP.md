@@ -1,6 +1,6 @@
 # BJJ Journal — Roadmap
 
-A personal web app for learning Brazilian Jiu-Jitsu: a technique library, a class log, mistake tracking and analysis, with progress tracking (technique mastery, stats, streak) and a skill tree map.
+A personal web app for learning Brazilian Jiu-Jitsu: a technique library, a class log, mistake tracking and analysis, with progress tracking (technique mastery, stats, streak), a game plan and a full technique tree.
 
 - **User:** one person (the owner). Single account, no sign-up.
 - **Use:** log a class from the phone right after training; review techniques and mistakes on laptop or phone.
@@ -18,7 +18,7 @@ Design mockups for every screen: [BJJ Journal — App Design](https://claude.ai/
 | Tab | Purpose |
 |---|---|
 | **Home** | Belt & stripes, classes and mat time, stats (Guard, Sweeps, Passing, Escapes, Submissions, Takedowns), training streak, current focus techniques, top mistake this month, **Log today's class** button |
-| **Map** | Skill tree of positions and techniques. Nodes are locked / learning / mastered. Tap a node to open the technique |
+| **Map** | Two sections. **Game plan**: my plan in one line, Plan A as a chain of stages (standing → guard → sweep → top & finish) with my techniques, a stage strength bar and "if he… → I…" reactions, the weakest link, and Plan B (escapes back to guard). **Technique tree**: the full catalogue by category (guards, guard pulls, grips, sweeps, passes, submissions, escapes & defence, takedowns, control & back) with mastery and a star to add a technique to the game plan |
 | **Log** | Class entries: date, rolling notes (the main field), techniques covered, mistakes. All classes are Gi and 2 hours, so there is no class type, duration or energy field |
 | **Mistakes** | My mistakes (status: Open → Working on it → Fixed), analysis charts, common mistakes per technique |
 | **Technique page** | Steps, key details, common mistakes + fixes, YouTube / Instagram Reels links, my notes, mastery level, times hit in rolling |
@@ -54,9 +54,9 @@ No XP, player levels or achievements: progress is shown by technique mastery, st
  ┌──────────────────┐      ┌───────────────────────┐
  │ Frontend         │      │ Backend               │
  │ React + TS + Vite│ ───▶ │ FastAPI (Python)      │
- │ Tailwind         │ JWT  │ stats / unlocks       │
- │ React Flow       │      │ mistake analysis      │
- │ Recharts         │      │ SQLAlchemy + Alembic  │
+ │ Tailwind         │ JWT  │ stats / game plan     │
+ │ Recharts         │      │ mistake analysis      │
+ │                  │      │ SQLAlchemy + Alembic  │
  └──────────────────┘      └──────────┬────────────┘
         │ login                       │ SQL
         ▼                             ▼
@@ -109,7 +109,7 @@ Alternative if running on a personal VPS: the same `docker-compose.yml` with a r
 ```
 profile          id, belt, stripes, focus_technique_ids[], created_at
 position         id, name, category (guard/top/bottom/standing/back), description
-technique        id, name, type (pull/sweep/submission/pass/escape/takedown/entry/control),
+technique        id, name, type (guard/pull/grip/sweep/submission/pass/escape/takedown/entry/control),
                  stat (guard/sweeps/passing/escapes/submissions/takedowns),
                  from_position_id, to_position_id, steps[], key_details[],
                  mastery (0–5), times_hit, notes, gi_only
@@ -121,7 +121,16 @@ session_technique session_id, technique_id, kind (taught/drilled/hit_in_rolling)
 my_mistake       id, session_id, technique_id?, position_id?, category
                  (posture/grips/timing/hook retention/defense/other),
                  description, status (open/working/fixed), fixed_at
+game_plan        id, summary (my game in one line), updated_at
+plan_stage       id, plan_id, kind (a/b), position, name, goal, situation?
+plan_stage_technique stage_id, technique_id, role (main/backup)
+plan_reaction    id, stage_id, if_text, then_text, technique_id?
 ```
+
+- One game plan for now. Plan A stages are ordered by `position`; Plan B stages carry the `situation` they answer ("he mounts me").
+- **Stage strength** = average mastery of the stage's techniques, scaled to 0–100%. The **weakest link** is the Plan A stage with the lowest strength, ties broken by open mistakes on its techniques this month.
+- A technique is "in the game plan" when it belongs to any stage. The technique tree's categories map from `technique.type` (`guard`, `grip` and `escape`, which also covers defence, are the new or wider types).
+
 
 Every class is a 2-hour Gi class, so `class_session` has no type, duration or energy; totals such as mat time are `classes × 2 h`.
 
@@ -182,14 +191,18 @@ Deploying this early means every later phase can be used after class straight aw
 
 **Done when:** logging a class updates the stats and streak on Home, and raising a technique to Drilled unlocks the next one.
 
-### Phase 5 — Skill tree map
-- [ ] Map API: positions as groups, techniques as nodes, prerequisites as edges
-- [ ] React Flow map with locked / learning / mastered states
-- [ ] Auto-layout (dagre/elk), pinch-zoom and pan on phone
-- [ ] Tap a node → technique page; filter by tree (Guard pulls, DLR, Closed guard, Escapes)
-- [ ] Highlight current focus techniques
+### Phase 5 — Game plan and technique tree
+- [ ] Add `guard` and `grip` technique types; migration
+- [ ] Catalogue seed: about 55 techniques across the 9 tree categories, most of them locked, on top of the starter set
+- [ ] Game plan models + migrations: `game_plan`, `plan_stage`, `plan_stage_technique`, `plan_reaction`
+- [ ] Game plan API: read and edit the plan, stages, techniques and reactions; stage strength and weakest link
+- [ ] Seed the starting plan: grip → pull to De La Riva → tripod / sickle → top; Plan B with shrimp, upa, elbow-knee, back escape
+- [ ] Map tab with a Game plan / Technique tree switch
+- [ ] Game plan screen: summary, Plan A stages with strength bars and "if → then" reactions, weakest link linked to exercises and mistakes, Plan B
+- [ ] Technique tree screen: categories with known/total counts, search, mastery per technique, star to add or remove from the plan
+- [ ] Unit tests for stage strength and weakest link
 
-**Done when:** the DLR tree reads clearly on a phone and reflects real mastery levels.
+**Done when:** I can see my game plan with its weakest link on the phone, and add a technique to it from the tree in one tap.
 
 ### Phase 6 — Mistake analysis
 - [ ] Analysis API: frequency by category, by technique, by position, over time
@@ -257,5 +270,5 @@ Gi techniques, matched to a 1-stripe white belt focusing on guard pulling and De
 | **M1 — Library** | 0, 1 | Technique library runs locally |
 | **M2 — On my phone** | 2 | Live online, installable, login protected |
 | **M3 — Training journal** | 3 | Log classes and mistakes after training |
-| **M4 — Progress** | 4, 5 | Stats, streak, unlocks, skill tree map |
+| **M4 — Progress** | 4, 5 | Stats, streak, unlocks, game plan and technique tree |
 | **M5 — Insight** | 6, 7 | Mistake analysis and polish |
