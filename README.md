@@ -6,6 +6,12 @@ A personal Brazilian Jiu-Jitsu learning app: technique library, class log, mista
 
 See [ROADMAP.md](ROADMAP.md) for the plan, data model and phases.
 
+## Design
+
+UI design (mobile and web screens, style guide): [BJJ Journal — App Design](https://claude.ai/artifact/BZQyPysf1rjCGPnzTGjT44).
+
+The canvas has two pages: **Mobile** (Home, Map, Log, Exercises, Mistakes, Mind, Technique page, style guide) and **Web** (the same screens as responsive desktop pages). Press Play on a screen to click through it. The link is private until it is shared from the canvas's Share menu.
+
 ## Status
 
 Phase 0 (foundations) in place: a hello page that calls the API's `/health` endpoint, linting, tests and CI.

@@ -13,6 +13,8 @@ A personal web app for learning Brazilian Jiu-Jitsu: a technique library, a clas
 
 ### Screens
 
+Design mockups for every screen: [BJJ Journal — App Design](https://claude.ai/artifact/BZQyPysf1rjCGPnzTGjT44).
+
 | Tab | Purpose |
 |---|---|
 | **Home** | Belt & stripes, level, XP bar, stats (Guard, Sweeps, Passing, Escapes, Submissions, Takedowns), training streak, current focus techniques, top mistake this month, **Log today's class** button |
