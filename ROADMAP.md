@@ -21,18 +21,33 @@ A personal web app for learning Brazilian Jiu-Jitsu: a technique library, a clas
 | **Mistakes** | My mistakes (status: Open → Working on it → Fixed), analysis charts, common mistakes per technique |
 | **Technique page** | Steps, key details, common mistakes + fixes, YouTube / Instagram Reels links, my notes, mastery level, times hit in rolling |
 
+### Learning model
+
+The app is built around four stages of learning a technique. Every feature should help move a technique to the next stage.
+
+| Stage | What it means | How the app supports it |
+|---|---|---|
+| **Knowledge** | A set of facts: the technique's name, start and end positions, grips, the list of steps | Technique library: steps, key details, videos |
+| **Understanding** | How the parts connect: the mechanics, the order of steps, and *why* you do it this way and not another | A "why" for every step and key detail, common mistakes with *why it happens*, the skill tree map showing how positions and techniques link, my own explanation in my words |
+| **Ability** | Can repeat the technique step by step, consciously following the instructions | Drilling logged in classes, step checklist on the technique page |
+| **Skill** | Automatic ability: I do it without thinking about it, like touch typing | Hits in rolling against resisting partners, tracked over time |
+
+Mastery levels map onto these stages (see the table below). A technique is not "learned" when it is known, only when it has become a skill.
+
 ### Game rules
 
 **Technique mastery levels**
 
-| Level | Name | Meaning |
-|---|---|---|
-| 0 | Locked | Prerequisites not yet drilled |
-| 1 | Seen | Shown in class or watched |
-| 2 | Drilled | Drilled with a cooperative partner |
-| 3 | Hit in rolling | Landed it in sparring at least once |
-| 4 | Hit on resisting partners | Landed it repeatedly against resistance |
-| 5 | Mastered | Reliable; can teach it |
+| Level | Name | Meaning | Learning stage |
+|---|---|---|---|
+| 0 | Locked | Prerequisites not yet drilled | — |
+| 1 | Seen | Shown in class or watched | Knowledge |
+| 2 | Drilled | Drilled with a cooperative partner; can explain why each step matters | Understanding → Ability |
+| 3 | Hit in rolling | Landed it in sparring at least once | Ability |
+| 4 | Hit on resisting partners | Landed it repeatedly against resistance | Skill (forming) |
+| 5 | Mastered | Reliable and automatic; can teach it | Skill |
+
+Raising a technique to **Drilled** asks for a short explanation in my own words of why the technique works, so the Understanding stage is not skipped.
 
 **XP**
 
@@ -121,7 +136,8 @@ profile          id, belt, stripes, xp, focus_technique_ids[], created_at
 position         id, name, category (guard/top/bottom/standing/back), description
 technique        id, name, type (pull/sweep/submission/pass/escape/takedown/entry/control),
                  stat (guard/sweeps/passing/escapes/submissions/takedowns),
-                 from_position_id, to_position_id, steps[], key_details[],
+                 from_position_id, to_position_id, steps[] {action, why},
+                 key_details[] {detail, why}, my_explanation,
                  mastery (0–5), times_hit, notes, gi_only
 technique_prereq technique_id, prereq_id
 video_link       id, technique_id, url, source (youtube/instagram/other), title, start_seconds
@@ -162,6 +178,7 @@ Each phase ends with something usable and deployed-ready. Check boxes are update
 - [ ] Technique list (filter by position, type, mastery) and technique page
 - [ ] YouTube and Instagram Reels links: YouTube embeds inline, Reels open in the Instagram app
 - [ ] Edit notes, steps and mastery level from the technique page
+- [ ] Learning model on the technique page: a "why" for each step and key detail, a "My explanation" field, and the current learning stage (Knowledge / Understanding / Ability / Skill)
 
 **Done when:** all seed techniques are browsable and editable on a phone-sized screen.
 
@@ -233,7 +250,7 @@ Deploying this early means every later phase can be used after class straight aw
 
 ## 5. Seed content
 
-Gi techniques, matched to a 1-stripe white belt focusing on guard pulling and De La Riva. Each comes with steps, key details and 2–4 common mistakes.
+Gi techniques, matched to a 1-stripe white belt focusing on guard pulling and De La Riva. Each comes with steps and key details (each with a *why*) and 2–4 common mistakes.
 
 **Guard pulls**
 - Sit-down guard pull (to closed guard)
