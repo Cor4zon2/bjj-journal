@@ -1,0 +1,25 @@
+# Render Blueprint for the API. In Render: New > Blueprint > pick this repo.
+# Secrets marked `sync: false` are asked for once when the Blueprint is created.
+services:
+  - type: web
+    name: bjj-journal-api
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    # Migrations run in scripts/start.sh (`alembic upgrade head`) before the server starts,
+    # because Render's pre-deploy command is not available on the free plan.
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        sync: false # Supabase > Connect > Session pooler URI (IPv4)
+      - key: SUPABASE_URL
+        sync: false # https://<project-ref>.supabase.co
+      - key: OWNER_USER_ID
+        sync: false # Supabase > Authentication > Users > your user's UID
+      - key: CORS_ORIGINS
+        sync: false # e.g. ["https://bjj-journal.vercel.app"]

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#0f172a"/>
+  <!-- belt tails -->
+  <path d="M236 270 L168 404 L206 418 L262 284 Z" fill="#f8fafc"/>
+  <path d="M276 270 L344 404 L306 418 L250 284 Z" fill="#e2e8f0"/>
+  <rect x="290" y="368" width="48" height="24" transform="rotate(-23 314 380)" fill="#dc2626"/>
+  <!-- belt band -->
+  <rect x="64" y="208" width="384" height="64" rx="10" fill="#f8fafc"/>
+  <rect x="64" y="228" width="384" height="4" fill="#cbd5e1"/>
+  <rect x="64" y="248" width="384" height="4" fill="#cbd5e1"/>
+  <!-- knot -->
+  <rect x="216" y="190" width="80" height="100" rx="16" fill="#e2e8f0" stroke="#0f172a" stroke-width="8"/>
+  <path d="M232 214 L280 266" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/>
+</svg>

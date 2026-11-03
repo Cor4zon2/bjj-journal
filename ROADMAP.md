@@ -166,11 +166,12 @@ Each phase ends with something usable and deployed-ready. Check boxes are update
 **Done when:** all seed techniques are browsable and editable on a phone-sized screen.
 
 ### Phase 2 — Auth and deployment
-- [ ] Supabase project: Postgres + Auth (email + password, sign-ups disabled)
-- [ ] FastAPI verifies the Supabase JWT and enforces `OWNER_USER_ID`
-- [ ] Frontend login screen and session handling
-- [ ] Deploy backend to Render, frontend to Vercel, migrations run on deploy
-- [ ] PWA: manifest, icons, installable on iOS and Android
+- [ ] Supabase project: Postgres + Auth (email + password, sign-ups disabled). Steps in [docs/DEPLOY.md](docs/DEPLOY.md)
+- [x] FastAPI verifies the Supabase JWT and enforces `OWNER_USER_ID`
+- [x] Frontend login screen and session handling
+- [x] Deploy config: `render.yaml` (backend), `frontend/vercel.json`, migrations run on deploy (Alembic)
+- [ ] First deploy to Render and Vercel
+- [x] PWA: manifest, icons, installable on iOS and Android
 
 **Done when:** the app is live at a public URL, only the owner can sign in, and it installs on the phone's home screen.
 

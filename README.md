@@ -8,7 +8,8 @@ See [ROADMAP.md](ROADMAP.md) for the plan, data model and phases.
 
 ## Status
 
-Phase 0 (foundations) in place: a hello page that calls the API's `/health` endpoint, linting, tests and CI.
+- Phase 0 (foundations): linting, tests and CI.
+- Phase 2 (auth and deployment): Supabase login for a single owner account, JWT checks on the API, Render + Vercel deploy config, installable PWA. See [docs/DEPLOY.md](docs/DEPLOY.md) to put it online.
 
 ## Getting started
 
@@ -23,7 +24,9 @@ Phase 0 (foundations) in place: a hello page that calls the API's `/health` endp
 make dev
 ```
 
-This starts Postgres, the FastAPI backend and the Vite frontend with hot reload. Open http://localhost:5173: the page should say **API is ok**. The API runs on http://localhost:8000 (interactive docs at http://localhost:8000/docs).
+This starts Postgres, the FastAPI backend and the Vite frontend with hot reload, and applies database migrations. Open http://localhost:5173: the page should say **API is ok**.
+
+Locally there is no login: without Supabase settings the frontend skips the login screen and the backend runs with `AUTH_DISABLED=true` (refused when `ENVIRONMENT=production`). The API runs on http://localhost:8000 (interactive docs at http://localhost:8000/docs).
 
 Stop it with `Ctrl+C`, or `make down` if it runs in the background.
 
@@ -34,7 +37,7 @@ make install
 ```
 
 ```bash
-cd backend && uv run uvicorn app.main:app --reload
+cd backend && uv run alembic upgrade head && uv run uvicorn --factory app.main:create_app --reload
 ```
 
 ```bash
@@ -47,6 +50,20 @@ Defaults work for local development. To override them, copy the examples:
 
 - `backend/.env.example` → `backend/.env`
 - `frontend/.env.example` → `frontend/.env.local`
+
+To try real login locally, set `SUPABASE_URL` and `OWNER_USER_ID` in `backend/.env`, `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `frontend/.env.local`, then run `AUTH_DISABLED=false make dev`.
+
+### Database migrations
+
+Alembic, in `backend/alembic/`. Migrations run automatically on `make dev` and on every deploy.
+
+```bash
+cd backend && uv run alembic revision --autogenerate -m "add techniques"
+```
+
+```bash
+make migrate
+```
 
 ### Checks
 
@@ -66,5 +83,7 @@ GitHub Actions runs the same checks (plus a production build of the frontend) on
 backend/    FastAPI app (uv, Ruff, mypy, pytest)
 frontend/   React + TypeScript + Vite + Tailwind (ESLint, Prettier, Vitest)
 docker-compose.yml   local Postgres + backend + frontend
+render.yaml          Render Blueprint for the API
+docs/DEPLOY.md       Supabase, Render and Vercel setup
 Makefile    dev, lint, typecheck, test, check
 ```

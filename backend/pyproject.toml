@@ -4,8 +4,12 @@ version = "0.1.0"
 description = "BJJ Journal API"
 requires-python = ">=3.12"
 dependencies = [
+    "alembic>=1.20.1",
     "fastapi>=0.162.0",
+    "psycopg[binary]>=3.3.7",
     "pydantic-settings>=2.16.2",
+    "pyjwt[crypto]>=2.15.1",
+    "sqlalchemy>=2.1.6",
     "uvicorn[standard]>=0.54.0",
 ]
 
@@ -24,6 +28,10 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
 
+[tool.ruff.lint.isort]
+# The local `alembic/` migrations folder would otherwise make the package look first-party.
+known-third-party = ["alembic"]
+
 [tool.ruff.format]
 quote-style = "double"
 
@@ -31,7 +39,7 @@ quote-style = "double"
 python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
-files = ["app", "tests"]
+files = ["app", "tests", "alembic"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -15,6 +15,18 @@ jobs:
     defaults:
       run:
         working-directory: backend
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: bjj
+          POSTGRES_PASSWORD: bjj
+          POSTGRES_DB: bjj_journal
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bjj -d bjj_journal"
+          --health-interval 2s --health-timeout 5s --health-retries 15
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -25,6 +37,14 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy
       - run: uv run pytest
+      - name: Migrations apply cleanly (upgrade, downgrade, upgrade)
+        env:
+          AUTH_DISABLED: "true"
+          DATABASE_URL: postgresql+psycopg://bjj:bjj@localhost:5432/bjj_journal
+        run: |
+          uv run alembic upgrade head
+          uv run alembic downgrade base
+          uv run alembic upgrade head
 
   frontend:
     name: Frontend (ESLint, Prettier, tsc, Vitest, build)

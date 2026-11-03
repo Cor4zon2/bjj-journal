@@ -19,14 +19,22 @@ services:
 
   backend:
     build: ./backend
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: sh -c "alembic upgrade head && uvicorn --factory app.main:create_app --host 0.0.0.0 --port 8000 --reload"
+    # Optional backend/.env (e.g. SUPABASE_URL + OWNER_USER_ID to test real login locally).
+    env_file:
+      - path: ./backend/.env
+        required: false
     environment:
       DATABASE_URL: postgresql+psycopg://bjj:bjj@db:5432/bjj_journal
       CORS_ORIGINS: '["http://localhost:5173"]'
+      # No Supabase needed for local dev. To try real login: put SUPABASE_URL and
+      # OWNER_USER_ID in backend/.env, then run `AUTH_DISABLED=false make dev`.
+      AUTH_DISABLED: ${AUTH_DISABLED:-true}
     ports:
       - "8000:8000"
     volumes:
       - ./backend/app:/app/app
+      - ./backend/alembic:/app/alembic
     depends_on:
       db:
         condition: service_healthy
