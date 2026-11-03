@@ -12,5 +12,5 @@ COPY . .
 RUN uv sync --frozen --no-dev
 
 EXPOSE 8000
-# Runs `alembic upgrade head` before starting the server.
+# Applies migrations and loads missing seed techniques, then starts the server.
 CMD ["./scripts/start.sh"]

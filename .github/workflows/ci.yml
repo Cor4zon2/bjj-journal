@@ -21,12 +21,14 @@ jobs:
         env:
           POSTGRES_USER: bjj
           POSTGRES_PASSWORD: bjj
-          POSTGRES_DB: bjj_journal
+          POSTGRES_DB: bjj_test
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U bjj -d bjj_journal"
-          --health-interval 2s --health-timeout 5s --health-retries 15
+          --health-cmd "pg_isready -U bjj -d bjj_test"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 15
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
@@ -36,15 +38,12 @@ jobs:
       - run: uv run ruff check .
       - run: uv run ruff format --check .
       - run: uv run mypy
-      - run: uv run pytest
-      - name: Migrations apply cleanly (upgrade, downgrade, upgrade)
+      - name: pytest (SQLite)
+        run: uv run pytest
+      - name: pytest (Postgres)
+        run: uv run pytest
         env:
-          AUTH_DISABLED: "true"
-          DATABASE_URL: postgresql+psycopg://bjj:bjj@localhost:5432/bjj_journal
-        run: |
-          uv run alembic upgrade head
-          uv run alembic downgrade base
-          uv run alembic upgrade head
+          TEST_DATABASE_URL: postgresql+psycopg://bjj:bjj@localhost:5432/bjj_test
 
   frontend:
     name: Frontend (ESLint, Prettier, tsc, Vitest, build)
@@ -60,6 +59,8 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
+      - name: API types match openapi.json
+        run: npm run gen:api:types && git diff --exit-code -- src/api/schema.ts
       - run: npm run lint
       - run: npm run format:check
       - run: npm run typecheck

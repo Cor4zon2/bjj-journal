@@ -1,5 +1,9 @@
-"""SQLAlchemy models. Import every model module here so Alembic sees it."""
+from app.models.technique import (
+    CommonMistake,
+    Position,
+    Technique,
+    VideoLink,
+    technique_prereq,
+)
 
-from app.models.base import Base
-
-__all__ = ["Base"]
+__all__ = ["CommonMistake", "Position", "Technique", "VideoLink", "technique_prereq"]

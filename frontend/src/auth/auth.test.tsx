@@ -1,9 +1,14 @@
 import type { Session, SupabaseClient } from '@supabase/supabase-js'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
-import App from './App'
-import { AuthProvider } from './auth/AuthProvider'
+import { AppRoutes } from '../App'
+import { positions, techniqueList } from '../test/fixtures'
+import { mockApi, route } from '../test/render'
+import { AuthGate } from './AuthGate'
+import { AuthProvider } from './AuthProvider'
 
 type Listener = (event: string, session: Session | null) => void
 
@@ -20,7 +25,7 @@ function fakeSupabase({ session = null as Session | null, password = 'secret' } 
       if (creds.password !== password) {
         return { data: {}, error: new Error('Invalid login credentials') }
       }
-      listener('SIGNED_IN', fakeSession(creds.email))
+      listener('SIGNED_IN', fakeSession())
       return { data: {}, error: null }
     }),
     signOut: vi.fn(async () => {
@@ -31,65 +36,56 @@ function fakeSupabase({ session = null as Session | null, password = 'secret' } 
   return { auth } as unknown as SupabaseClient & { auth: typeof auth }
 }
 
-function fakeSession(email = 'owner@example.com'): Session {
-  return { access_token: 'token', user: { email } } as unknown as Session
+function fakeSession(): Session {
+  return { access_token: 'token', user: { email: 'owner@example.com' } } as unknown as Session
 }
 
-function stubApi(routes: Record<string, () => Response>) {
-  const fetchMock = vi.fn((input: RequestInfo | URL) => {
-    const path = new URL(String(input)).pathname
-    const route = routes[path]
-    return Promise.resolve(route ? route() : new Response(null, { status: 404 }))
-  })
-  vi.stubGlobal('fetch', fetchMock)
-  return fetchMock
-}
-
-const healthy = {
-  '/health': () => Response.json({ status: 'ok', version: '0.1.0' }),
-  '/me': () => Response.json({ id: 'owner-id', email: 'owner@example.com' }),
+function libraryApi(techniques: () => Response = () => Response.json(techniqueList)) {
+  return mockApi(
+    route('GET', '/positions', () => Response.json(positions)),
+    route('GET', '/techniques', techniques),
+  )
 }
 
 function renderApp(client: SupabaseClient | null) {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   return render(
     <AuthProvider client={client}>
-      <App />
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={['/techniques']}>
+          <AuthGate>
+            <AppRoutes />
+          </AuthGate>
+        </MemoryRouter>
+      </QueryClientProvider>
     </AuthProvider>,
   )
 }
 
-describe('App without Supabase (local dev)', () => {
-  it('skips login and shows the API status', async () => {
-    const fetchMock = stubApi(healthy)
+describe('without Supabase (local dev)', () => {
+  it('skips the login screen', async () => {
+    libraryApi()
 
     renderApp(null)
 
-    expect(screen.getByRole('heading', { name: 'BJJ Journal' })).toBeInTheDocument()
-    expect(await screen.findByText('API is ok (v0.1.0)')).toBeInTheDocument()
-    expect(screen.getByText(/Dev mode: login disabled/)).toBeInTheDocument()
-    expect(fetchMock).toHaveBeenCalledWith('http://localhost:8000/health', expect.anything())
-  })
-
-  it('shows an error when the API is down', async () => {
-    stubApi({ '/health': () => new Response(null, { status: 503 }) })
-
-    renderApp(null)
-
-    expect(await screen.findByText('API unreachable: API returned 503')).toBeInTheDocument()
+    expect(await screen.findByText('3 techniques')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Sign out' })).not.toBeInTheDocument()
   })
 })
 
-describe('App with Supabase auth', () => {
+describe('with Supabase auth', () => {
   it('shows the login screen when signed out', async () => {
+    const fetchMock = libraryApi()
     renderApp(fakeSupabase())
 
     expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument()
     expect(screen.getByLabelText('Email')).toBeInTheDocument()
     expect(screen.getByLabelText('Password')).toBeInTheDocument()
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('signs in with email and password', async () => {
-    stubApi(healthy)
+    libraryApi()
     const client = fakeSupabase()
     renderApp(client)
 
@@ -101,7 +97,7 @@ describe('App with Supabase auth', () => {
       email: 'owner@example.com',
       password: 'secret',
     })
-    expect(await screen.findByText('Signed in as owner@example.com')).toBeInTheDocument()
+    expect(await screen.findByText('3 techniques')).toBeInTheDocument()
   })
 
   it('shows a friendly error for a wrong password', async () => {
@@ -116,7 +112,7 @@ describe('App with Supabase auth', () => {
   })
 
   it('restores a stored session and signs out', async () => {
-    stubApi(healthy)
+    libraryApi()
     const client = fakeSupabase({ session: fakeSession() })
     renderApp(client)
 
@@ -126,21 +122,22 @@ describe('App with Supabase auth', () => {
     expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument()
   })
 
-  it('explains when the account is not the owner', async () => {
-    stubApi({ ...healthy, '/me': () => new Response(null, { status: 403 }) })
-    renderApp(fakeSupabase({ session: fakeSession('stranger@example.com') }))
+  it('signs out and explains when the account is not the owner', async () => {
+    libraryApi(() => Response.json({ detail: 'Not the owner' }, { status: 403 }))
+    const client = fakeSupabase({ session: fakeSession() })
+    renderApp(client)
 
+    await waitFor(() => expect(client.auth.signOut).toHaveBeenCalled())
     expect(
       await screen.findByText('This account is not allowed to use this app.'),
     ).toBeInTheDocument()
   })
 
   it('signs out when the API rejects the token', async () => {
-    stubApi({ ...healthy, '/me': () => new Response(null, { status: 401 }) })
+    libraryApi(() => Response.json({ detail: 'Invalid or expired token' }, { status: 401 }))
     const client = fakeSupabase({ session: fakeSession() })
     renderApp(client)
 
-    await waitFor(() => expect(client.auth.signOut).toHaveBeenCalled())
-    expect(await screen.findByRole('button', { name: 'Sign in' })).toBeInTheDocument()
+    expect(await screen.findByText('Your session expired. Sign in again.')).toBeInTheDocument()
   })
 })

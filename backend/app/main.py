@@ -1,9 +1,10 @@
-from fastapi import FastAPI
+from fastapi import APIRouter, Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
-from app.api import health, protected_router
+from app.api import health, me, positions, techniques
 from app.config import get_settings
+from app.core.auth import require_owner
 
 
 def create_app() -> FastAPI:
@@ -24,5 +25,11 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(health.router)
-    app.include_router(protected_router)
+
+    # Everything except /health requires the owner's Supabase token.
+    protected = APIRouter(dependencies=[Depends(require_owner)])
+    protected.include_router(me.router)
+    protected.include_router(positions.router)
+    protected.include_router(techniques.router)
+    app.include_router(protected)
     return app

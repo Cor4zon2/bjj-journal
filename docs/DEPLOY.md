@@ -28,8 +28,8 @@ The API verifies tokens against the project's public keys (`/auth/v1/.well-known
    | `OWNER_USER_ID` | your user's UID |
    | `CORS_ORIGINS` | `["https://<your-app>.vercel.app"]`. You'll know the URL after step 3; put a placeholder for now and update it then. |
 
-3. Deploy. Each deploy runs `alembic upgrade head` before starting (see `backend/scripts/start.sh`). If a migration fails, the new version doesn't start and the old one keeps serving.
-4. Check `https://<service>.onrender.com/health` returns `{"status":"ok",...}` and `/me` returns 401.
+3. Deploy. Each deploy runs `alembic upgrade head` and then the seed loader before starting (see `backend/scripts/start.sh`). The seed loader only adds techniques that are missing, so your notes and mastery levels are kept. If a migration fails, the new version doesn't start and the old one keeps serving.
+4. Check `https://<service>.onrender.com/health` returns `{"status":"ok",...}` and `/techniques` returns 401 (no token).
 
 The free plan sleeps after 15 minutes idle. The first request after that takes up to a minute.
 
@@ -57,6 +57,6 @@ New deploys are picked up automatically the next time the app is opened.
 ## Checklist
 
 - [ ] Sign-ups disabled in Supabase
-- [ ] `https://<api>/health` → ok; `https://<api>/me` without a token → 401
-- [ ] Logging in on the Vercel URL shows "Signed in as <your email>"
+- [ ] `https://<api>/health` → ok; `https://<api>/techniques` without a token → 401
+- [ ] Logging in on the Vercel URL shows the technique library
 - [ ] App installed on the phone's home screen and opens full screen

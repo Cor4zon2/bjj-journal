@@ -155,13 +155,13 @@ Each phase ends with something usable and deployed-ready. Check boxes are update
 **Done when:** `make dev` opens a hello page that calls `/health` on the API, and CI is green.
 
 ### Phase 1 — Technique library
-- [ ] Database models + Alembic migrations for positions, techniques, prereqs, video links, common mistakes
-- [ ] CRUD API for techniques and positions
-- [ ] Seed data loader (YAML → database)
-- [ ] Seed content (see section 5)
-- [ ] Technique list (filter by position, type, mastery) and technique page
-- [ ] YouTube and Instagram Reels links: YouTube embeds inline, Reels open in the Instagram app
-- [ ] Edit notes, steps and mastery level from the technique page
+- [x] Database models + Alembic migrations for positions, techniques, prereqs, video links, common mistakes
+- [x] CRUD API for techniques and positions
+- [x] Seed data loader (YAML → database)
+- [x] Seed content (see section 5)
+- [x] Technique list (filter by position, type, mastery) and technique page
+- [x] YouTube and Instagram Reels links: YouTube embeds inline, Reels open in the Instagram app
+- [x] Edit notes, steps and mastery level from the technique page
 
 **Done when:** all seed techniques are browsable and editable on a phone-sized screen.
 

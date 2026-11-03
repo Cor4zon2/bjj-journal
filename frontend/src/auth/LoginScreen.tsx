@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useAuth } from './AuthContext'
 
-export function LoginScreen() {
+export function LoginScreen({ notice }: { notice?: string }) {
   const { signIn } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -25,6 +25,11 @@ export function LoginScreen() {
       <img src="/icons/pwa-192x192.png" alt="" className="mb-4 h-20 w-20 rounded-2xl" />
       <h1 className="mb-8 text-3xl font-bold tracking-tight">BJJ Journal</h1>
       <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-4">
+        {notice && !error && (
+          <p role="status" className="rounded-lg bg-amber-900/60 px-3 py-2 text-sm">
+            {notice}
+          </p>
+        )}
         <label className="flex flex-col gap-1 text-sm text-slate-300">
           Email
           <input

@@ -3,7 +3,8 @@ import { createContext, useContext } from 'react'
 
 export type AuthState =
   | { status: 'loading' }
-  | { status: 'signedOut' }
+  /** `notice` explains why the user was signed out, if it wasn't their choice. */
+  | { status: 'signedOut'; notice?: string }
   | { status: 'signedIn'; session: Session }
   /** Supabase isn't configured: local dev without login. */
   | { status: 'disabled' }

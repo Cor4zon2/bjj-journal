@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY: help dev down install migrate lint format typecheck test check
+.PHONY: help dev down install lint format typecheck test check migrate seed api-types
 
 help: ## Show available commands
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -13,9 +13,6 @@ down: ## Stop the dev stack
 install: ## Install backend and frontend dependencies locally
 	cd backend && uv sync
 	cd frontend && npm ci
-
-migrate: ## Apply database migrations (uses backend/.env or DATABASE_URL)
-	cd backend && uv run alembic upgrade head
 
 lint: ## Lint backend (Ruff) and frontend (ESLint, Prettier)
 	cd backend && uv run ruff check . && uv run ruff format --check .
@@ -34,3 +31,12 @@ test: ## Run backend (pytest) and frontend (Vitest) tests
 	cd frontend && npm test
 
 check: lint typecheck test ## Everything CI runs
+
+migrate: ## Apply database migrations (uses DATABASE_URL)
+	cd backend && uv run alembic upgrade head
+
+seed: ## Load seed techniques that are not in the database yet
+	cd backend && uv run python -m app.seed
+
+api-types: ## Regenerate frontend/openapi.json and the TypeScript API types
+	cd frontend && npm run gen:api

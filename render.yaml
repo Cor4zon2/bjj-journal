@@ -10,7 +10,7 @@ services:
     dockerContext: .
     healthCheckPath: /health
     autoDeploy: true
-    # Migrations run in scripts/start.sh (`alembic upgrade head`) before the server starts,
+    # Migrations and the seed loader run in scripts/start.sh before the server starts,
     # because Render's pre-deploy command is not available on the free plan.
     envVars:
       - key: ENVIRONMENT

@@ -27,8 +27,11 @@ def test_owner_with_valid_token_gets_through(client: TestClient) -> None:
     assert response.json() == {"id": OWNER_ID, "email": "owner@example.com"}
 
 
-def test_missing_token_is_unauthorized(client: TestClient) -> None:
-    response = client.get("/me")
+@pytest.mark.parametrize("path", ["/me", "/techniques", "/positions"])
+def test_missing_token_is_unauthorized(client: TestClient, path: str) -> None:
+    del client.headers["Authorization"]
+
+    response = client.get(path)
 
     assert response.status_code == 401
     assert response.headers["www-authenticate"] == "Bearer"
@@ -88,6 +91,8 @@ def test_unreachable_jwks_is_service_unavailable() -> None:
 
 
 def test_health_stays_public(client: TestClient) -> None:
+    del client.headers["Authorization"]
+
     assert client.get("/health").status_code == 200
 
 
