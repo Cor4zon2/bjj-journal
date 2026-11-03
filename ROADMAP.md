@@ -18,6 +18,7 @@ A personal web app for learning Brazilian Jiu-Jitsu: a technique library, a clas
 | **Home** | Belt & stripes, level, XP bar, stats (Guard, Sweeps, Passing, Escapes, Submissions, Takedowns), training streak, current focus techniques, top mistake this month, **Log today's class** button |
 | **Map** | Skill tree of positions and techniques. Nodes are locked / learning / mastered. Tap a node to open the technique |
 | **Log** | Class entries: date, class type, techniques covered, rolling notes, mistakes, energy level |
+| **Exercises** | Exercises for each learning stage, today's suggested set for my focus techniques, exercise history |
 | **Mistakes** | My mistakes (status: Open → Working on it → Fixed), analysis charts, common mistakes per technique |
 | **Technique page** | Steps, key details, common mistakes + fixes, YouTube / Instagram Reels links, my notes, mastery level, times hit in rolling |
 
@@ -33,6 +34,25 @@ The app is built around four stages of learning a technique. Every feature shoul
 | **Skill** | Automatic ability: I do it without thinking about it, like touch typing | Hits in rolling against resisting partners, tracked over time |
 
 Mastery levels map onto these stages (see the table below). A technique is not "learned" when it is known, only when it has become a skill.
+
+### Exercises
+
+Each learning stage needs its own kind of practice. Reading about a technique does not make it automatic, and endless rolling does not explain why it works. The Exercises section gives exercises for every stage and suggests which ones to do next.
+
+| Stage | Exercise types | Where |
+|---|---|---|
+| **Knowledge** | Flashcards: name the start and end positions, grips and steps. Recognise the technique in a video | In the app |
+| **Understanding** | "Why" questions: why this step, what happens if I skip it or do it differently. Put the steps in the right order. Explain the technique in my own words. Watch a video and spot the key details. Connect it to the techniques before and after it on the map | In the app |
+| **Ability** | Step-by-step drilling with a cooperative partner, following the step checklist. Solo drills (shrimp, bridge, technical stand-up, granby roll, hip switch). Mental rehearsal: walk through every step in my head | Gym or home |
+| **Skill** | High-rep flow drills and chains (DLR hook → tripod → sickle). Positional sparring from a fixed start with growing resistance (25% → 50% → 100%). Situational rolling: start in the position, under fatigue | Gym |
+
+**How it works**
+
+- Every exercise has: a target technique (or several), a learning stage, a format (in-app / solo / partner), a dose (reps, rounds or time), a resistance level for partner work, and a success criterion.
+- In-app exercises (flashcards, ordering steps, "why" questions) are generated from the technique's steps, key details and common mistakes, so they appear as soon as a technique is in the library.
+- **Today's set:** for each focus technique the app suggests exercises for its current stage, plus a quick review of techniques not practised for a while.
+- Results are logged with the class (or on their own for home practice): reps, rounds, success rate. In positional sparring the success rate against resistance is the main sign that a skill is forming.
+- Passing a stage's success criterion suggests raising the mastery level, for example: answer all "why" questions → ready for Drilled; 3 out of 5 successful attempts at 50% resistance → ready for Hit on resisting partners.
 
 ### Game rules
 
@@ -57,6 +77,7 @@ Raising a technique to **Drilled** asks for a short explanation in my own words 
 | Raise a technique's mastery level | +100 |
 | Hit a technique in rolling | +20 |
 | Log a mistake (with a note) | +10 |
+| Complete an exercise (in-app or logged practice) | +15 |
 | Mark a mistake fixed | +75 |
 | Unlock an achievement | varies |
 
@@ -148,6 +169,12 @@ session_technique session_id, technique_id, kind (taught/drilled/hit_in_rolling)
 my_mistake       id, session_id, technique_id?, position_id?, category
                  (posture/grips/timing/hook retention/defense/other),
                  description, status (open/working/fixed), fixed_at
+exercise         id, name, stage (knowledge/understanding/ability/skill),
+                 format (in_app/solo/partner), description, dose, resistance_pct?,
+                 success_criterion, generated (bool)
+exercise_technique exercise_id, technique_id
+exercise_log     id, exercise_id, session_id?, date, reps?, rounds?, attempts?,
+                 successes?, resistance_pct?, notes
 xp_event         id, kind, amount, ref_id, created_at
 achievement      id, code, unlocked_at
 ```
@@ -203,7 +230,18 @@ Deploying this early means every later phase can be used after class straight aw
 
 **Done when:** a full class can be logged on the phone in under 2 minutes, mistakes included.
 
-### Phase 4 — Game layer and Home
+### Phase 4 — Exercises
+- [ ] Exercise models + migrations, exercise API and exercise log API
+- [ ] Exercises tab: list by learning stage and technique, exercise page with dose and success criterion
+- [ ] In-app exercises generated from technique data: flashcards, order the steps, "why" questions
+- [ ] Solo, partner and positional sparring exercises with logging (reps, rounds, success rate, resistance)
+- [ ] Log exercises inside the class log form
+- [ ] "Today's set": suggestions for focus techniques based on their current stage
+- [ ] Suggest raising the mastery level when a stage's success criterion is met
+
+**Done when:** for each focus technique the app shows what to practise next, and exercise results can be logged in the gym in a few taps.
+
+### Phase 5 — Game layer and Home
 - [ ] XP service: XP events for logging, mastery changes, hits, fixed mistakes
 - [ ] Level curve, stats calculation, weekly streak
 - [ ] Unlock rules from prerequisites
@@ -214,7 +252,7 @@ Deploying this early means every later phase can be used after class straight aw
 
 **Done when:** logging a class visibly moves the XP bar, and raising a technique to Drilled unlocks the next one.
 
-### Phase 5 — Skill tree map
+### Phase 6 — Skill tree map
 - [ ] Map API: positions as groups, techniques as nodes, prerequisites as edges
 - [ ] React Flow map with locked / learning / mastered states
 - [ ] Auto-layout (dagre/elk), pinch-zoom and pan on phone
@@ -223,7 +261,7 @@ Deploying this early means every later phase can be used after class straight aw
 
 **Done when:** the DLR tree reads clearly on a phone and reflects real mastery levels.
 
-### Phase 6 — Mistake analysis
+### Phase 7 — Mistake analysis
 - [ ] Analysis API: frequency by category, by technique, by position, over time
 - [ ] Charts: top mistakes this month, mistakes per class over time, fixed vs open
 - [ ] "Recurring" flag: same mistake 3+ times in the last 5 classes
@@ -232,7 +270,7 @@ Deploying this early means every later phase can be used after class straight aw
 
 **Done when:** the Mistakes tab answers "what do I keep getting wrong, and is it getting better?"
 
-### Phase 7 — Polish
+### Phase 8 — Polish
 - [ ] Training calendar heatmap
 - [ ] Data export (JSON / CSV) and backup
 - [ ] Dark mode
@@ -280,6 +318,14 @@ Gi techniques, matched to a 1-stripe white belt focusing on guard pulling and De
 - Guard pull: pulling without grips, landing flat on the back, leaving the foot on the mat in front of the opponent
 - Closed guard: crossing ankles too low, no posture break before attacking
 
+**Starter exercises**
+- Solo: shrimp (hip escape) lines, bridge and roll, technical stand-up, granby roll, sit-up guard recovery
+- Guard pull: grip-then-pull reps from standing, 10 per side, partner cooperative
+- DLR: hook retention while partner walks around (30 s rounds), DLR entry → tripod → sickle flow drill
+- Positional sparring: start in DLR, I win by sweeping, partner wins by passing or breaking the hook (3-minute rounds, 50% → 100%)
+- Closed guard: posture break → armbar / cross-collar choke chain, 10 reps each
+- Mount escapes: partner in mount at 25% → 50% → 100%, escape with upa or elbow-knee
+
 ---
 
 ## 6. Milestones
@@ -288,6 +334,6 @@ Gi techniques, matched to a 1-stripe white belt focusing on guard pulling and De
 |---|---|---|
 | **M1 — Library** | 0, 1 | Technique library runs locally |
 | **M2 — On my phone** | 2 | Live online, installable, login protected |
-| **M3 — Training journal** | 3 | Log classes and mistakes after training |
-| **M4 — Game on** | 4, 5 | XP, levels, achievements, skill tree map |
-| **M5 — Insight** | 6, 7 | Mistake analysis and polish |
+| **M3 — Training journal** | 3, 4 | Log classes, mistakes and exercises after training |
+| **M4 — Game on** | 5, 6 | XP, levels, achievements, skill tree map |
+| **M5 — Insight** | 7, 8 | Mistake analysis and polish |
