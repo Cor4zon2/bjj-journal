@@ -208,10 +208,194 @@ export interface paths {
         patch: operations["update_common_mistake_common_mistakes__mistake_id__patch"];
         trace?: never;
     };
+    "/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Sessions
+         * @description Logged classes, newest first.
+         */
+        get: operations["list_sessions_sessions_get"];
+        put?: never;
+        /**
+         * Create Session
+         * @description Log a class with its techniques and mistakes in one request.
+         */
+        post: operations["create_session_sessions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sessions/{session_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Session */
+        get: operations["get_session_sessions__session_id__get"];
+        put?: never;
+        post?: never;
+        /**
+         * Delete Session
+         * @description Delete a class, with the mistakes logged in it.
+         */
+        delete: operations["delete_session_sessions__session_id__delete"];
+        options?: never;
+        head?: never;
+        /** Update Session */
+        patch: operations["update_session_sessions__session_id__patch"];
+        trace?: never;
+    };
+    "/mistakes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Mistakes
+         * @description My mistakes, newest first.
+         */
+        get: operations["list_mistakes_mistakes_get"];
+        put?: never;
+        /** Create Mistake */
+        post: operations["create_mistake_mistakes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/mistakes/{mistake_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Mistake */
+        delete: operations["delete_mistake_mistakes__mistake_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Update Mistake
+         * @description Edit a mistake or move it along: Open → Working on it → Fixed.
+         */
+        patch: operations["update_mistake_mistakes__mistake_id__patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ClassSessionCreate */
+        ClassSessionCreate: {
+            /**
+             * Client Id
+             * @description Random id from the client. Sending the same one again returns the class that was already saved instead of creating a duplicate.
+             */
+            client_id?: string | null;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Type
+             * @default gi_class
+             * @enum {string}
+             */
+            type: "gi_class" | "open_mat" | "drilling" | "competition";
+            /** Duration Min */
+            duration_min?: number | null;
+            /** Energy */
+            energy?: number | null;
+            /**
+             * Rolling Notes
+             * @default
+             */
+            rolling_notes: string;
+            /**
+             * Techniques
+             * @default []
+             */
+            techniques: components["schemas"]["SessionTechniqueWrite"][];
+            /**
+             * Mistakes
+             * @default []
+             */
+            mistakes: components["schemas"]["SessionMistakeWrite"][];
+        };
+        /** ClassSessionRead */
+        ClassSessionRead: {
+            /** Id */
+            id: number;
+            /** Client Id */
+            client_id: string | null;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "gi_class" | "open_mat" | "drilling" | "competition";
+            /** Duration Min */
+            duration_min: number | null;
+            /** Energy */
+            energy: number | null;
+            /** Rolling Notes */
+            rolling_notes: string;
+            /** Techniques */
+            techniques: components["schemas"]["SessionTechniqueRead"][];
+            /** Mistakes */
+            mistakes: components["schemas"]["MistakeRead"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * ClassSessionUpdate
+         * @description Partial update. `techniques` and `mistakes`, when sent, replace the whole list:
+         *     mistakes with an `id` are updated, new ones are created and missing ones deleted.
+         */
+        ClassSessionUpdate: {
+            /** Date */
+            date?: string | null;
+            /** Type */
+            type?: ("gi_class" | "open_mat" | "drilling" | "competition") | null;
+            /** Duration Min */
+            duration_min?: number | null;
+            /** Energy */
+            energy?: number | null;
+            /** Rolling Notes */
+            rolling_notes?: string | null;
+            /** Techniques */
+            techniques?: components["schemas"]["SessionTechniqueWrite"][] | null;
+            /** Mistakes */
+            mistakes?: components["schemas"]["SessionMistakeWrite"][] | null;
+        };
         /** CommonMistakeCreate */
         CommonMistakeCreate: {
             /** Title */
@@ -271,6 +455,116 @@ export interface components {
             /** Email */
             email: string | null;
         };
+        /**
+         * MistakeCreate
+         * @description A mistake logged on its own. Mistakes are usually logged inside a class instead.
+         */
+        MistakeCreate: {
+            /** Technique Id */
+            technique_id?: number | null;
+            /** Position Id */
+            position_id?: number | null;
+            /**
+             * Category
+             * @default other
+             * @enum {string}
+             */
+            category: "posture" | "grips" | "timing" | "hook_retention" | "defense" | "other";
+            /** Description */
+            description: string;
+            /**
+             * Status
+             * @default open
+             * @enum {string}
+             */
+            status: "open" | "working" | "fixed";
+            /** Session Id */
+            session_id?: number | null;
+        };
+        /** MistakeRead */
+        MistakeRead: {
+            /** Id */
+            id: number;
+            /** Session Id */
+            session_id: number | null;
+            /** Technique Id */
+            technique_id: number | null;
+            /** Position Id */
+            position_id: number | null;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "posture" | "grips" | "timing" | "hook_retention" | "defense" | "other";
+            /** Description */
+            description: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "working" | "fixed";
+            /** Fixed At */
+            fixed_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            technique: components["schemas"]["TechniqueRef"] | null;
+            position: components["schemas"]["PositionRef"] | null;
+        };
+        /**
+         * MistakeUpdate
+         * @description Partial update. `null` clears the linked technique or position.
+         */
+        MistakeUpdate: {
+            /** Technique Id */
+            technique_id?: number | null;
+            /** Position Id */
+            position_id?: number | null;
+            /** Category */
+            category?: ("posture" | "grips" | "timing" | "hook_retention" | "defense" | "other") | null;
+            /** Description */
+            description?: string | null;
+            /** Status */
+            status?: ("open" | "working" | "fixed") | null;
+        };
+        /**
+         * MistakeWithSession
+         * @description A row of the mistakes list: includes the class it was logged in.
+         */
+        MistakeWithSession: {
+            /** Id */
+            id: number;
+            /** Session Id */
+            session_id: number | null;
+            /** Technique Id */
+            technique_id: number | null;
+            /** Position Id */
+            position_id: number | null;
+            /**
+             * Category
+             * @enum {string}
+             */
+            category: "posture" | "grips" | "timing" | "hook_retention" | "defense" | "other";
+            /** Description */
+            description: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "working" | "fixed";
+            /** Fixed At */
+            fixed_at: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            technique: components["schemas"]["TechniqueRef"] | null;
+            position: components["schemas"]["PositionRef"] | null;
+            session: components["schemas"]["SessionRef"] | null;
+        };
         /** PositionCreate */
         PositionCreate: {
             /** Name */
@@ -326,6 +620,68 @@ export interface components {
             category?: ("guard" | "top" | "bottom" | "standing" | "back") | null;
             /** Description */
             description?: string | null;
+        };
+        /**
+         * SessionMistakeWrite
+         * @description A mistake inside a class log. Send `id` to keep an existing mistake when editing a class.
+         */
+        SessionMistakeWrite: {
+            /** Technique Id */
+            technique_id?: number | null;
+            /** Position Id */
+            position_id?: number | null;
+            /**
+             * Category
+             * @default other
+             * @enum {string}
+             */
+            category: "posture" | "grips" | "timing" | "hook_retention" | "defense" | "other";
+            /** Description */
+            description: string;
+            /**
+             * Status
+             * @default open
+             * @enum {string}
+             */
+            status: "open" | "working" | "fixed";
+            /** Id */
+            id?: number | null;
+        };
+        /** SessionRef */
+        SessionRef: {
+            /** Id */
+            id: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /**
+             * Type
+             * @enum {string}
+             */
+            type: "gi_class" | "open_mat" | "drilling" | "competition";
+        };
+        /** SessionTechniqueRead */
+        SessionTechniqueRead: {
+            /** Technique Id */
+            technique_id: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "taught" | "drilled" | "hit_in_rolling";
+            technique: components["schemas"]["TechniqueRef"];
+        };
+        /** SessionTechniqueWrite */
+        SessionTechniqueWrite: {
+            /** Technique Id */
+            technique_id: number;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "taught" | "drilled" | "hit_in_rolling";
         };
         /** TechniqueCreate */
         TechniqueCreate: {
@@ -1166,6 +1522,296 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommonMistakeRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sessions_sessions_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassSessionRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_session_sessions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClassSessionCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassSessionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_session_sessions__session_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassSessionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_session_sessions__session_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_session_sessions__session_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClassSessionUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ClassSessionRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_mistakes_mistakes_get: {
+        parameters: {
+            query?: {
+                status?: ("open" | "working" | "fixed") | null;
+                technique_id?: number | null;
+                position_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MistakeWithSession"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_mistake_mistakes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MistakeCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MistakeWithSession"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_mistake_mistakes__mistake_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mistake_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_mistake_mistakes__mistake_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                mistake_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MistakeUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MistakeWithSession"];
                 };
             };
             /** @description Validation Error */

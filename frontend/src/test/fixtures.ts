@@ -1,4 +1,11 @@
-import type { Position, Technique, TechniqueSummary, VideoLink } from '../api/types'
+import type {
+  ClassSession,
+  Mistake,
+  Position,
+  Technique,
+  TechniqueSummary,
+  VideoLink,
+} from '../api/types'
 
 export const positions: Position[] = [
   { id: 1, slug: 'standing', name: 'Standing', category: 'standing', description: '' },
@@ -109,3 +116,47 @@ export const techniqueList: TechniqueSummary[] = [
     }),
   ),
 ]
+
+export function makeSession(overrides: Partial<ClassSession> = {}): ClassSession {
+  const tripod = { id: 10, slug: 'tripod-sweep', name: 'Tripod sweep', mastery: 1 }
+  return {
+    id: 1,
+    client_id: null,
+    date: '2026-11-02',
+    type: 'gi_class',
+    duration_min: 90,
+    energy: 4,
+    rolling_notes: 'Five rounds.',
+    techniques: [
+      { technique_id: 10, kind: 'drilled', technique: tripod },
+      { technique_id: 10, kind: 'hit_in_rolling', technique: tripod },
+    ],
+    mistakes: [
+      {
+        id: 7,
+        session_id: 1,
+        technique_id: 10,
+        position_id: null,
+        category: 'hook_retention',
+        description: 'Lost the DLR hook',
+        status: 'open',
+        fixed_at: null,
+        created_at: '2026-11-02T20:00:00Z',
+        technique: tripod,
+        position: null,
+      },
+    ],
+    created_at: '2026-11-02T20:00:00Z',
+    updated_at: '2026-11-02T20:00:00Z',
+    ...overrides,
+  }
+}
+
+export function makeMistake(overrides: Partial<Mistake> = {}): Mistake {
+  const session = makeSession()
+  return {
+    ...session.mistakes[0],
+    session: { id: session.id, date: session.date, type: session.type },
+    ...overrides,
+  }
+}

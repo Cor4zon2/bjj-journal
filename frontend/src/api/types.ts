@@ -22,3 +22,15 @@ export type TechniqueFilters = {
   mastery?: number
   q?: string
 }
+
+export type ClassSession = Schemas['ClassSessionRead']
+export type ClassSessionCreate = Schemas['ClassSessionCreate']
+export type ClassSessionUpdate = Schemas['ClassSessionUpdate']
+export type ClassType = ClassSession['type']
+export type SessionTechnique = Schemas['SessionTechniqueRead']
+export type SessionTechniqueKind = SessionTechnique['kind']
+export type SessionMistakeWrite = Schemas['SessionMistakeWrite']
+export type Mistake = Schemas['MistakeWithSession']
+export type MistakeUpdate = Schemas['MistakeUpdate']
+export type MistakeCategory = Mistake['category']
+export type MistakeStatus = Mistake['status']

@@ -24,3 +24,16 @@ MASTERY_NAMES: dict[int, str] = {
     4: "Hit on resisting partners",
     5: "Mastered",
 }
+
+ClassType = Literal["gi_class", "open_mat", "drilling", "competition"]
+SessionTechniqueKind = Literal["taught", "drilled", "hit_in_rolling"]
+MistakeCategory = Literal["posture", "grips", "timing", "hook_retention", "defense", "other"]
+MistakeStatus = Literal["open", "working", "fixed"]
+
+CLASS_TYPES: tuple[str, ...] = get_args(ClassType)
+SESSION_TECHNIQUE_KINDS: tuple[str, ...] = get_args(SessionTechniqueKind)
+MISTAKE_CATEGORIES: tuple[str, ...] = get_args(MistakeCategory)
+MISTAKE_STATUSES: tuple[str, ...] = get_args(MistakeStatus)
+
+ENERGY_MIN = 1
+ENERGY_MAX = 5

@@ -1,3 +1,4 @@
+from app.models.journal import ClassSession, MyMistake, SessionTechnique
 from app.models.technique import (
     CommonMistake,
     Position,
@@ -6,4 +7,13 @@ from app.models.technique import (
     technique_prereq,
 )
 
-__all__ = ["CommonMistake", "Position", "Technique", "VideoLink", "technique_prereq"]
+__all__ = [
+    "ClassSession",
+    "CommonMistake",
+    "MyMistake",
+    "Position",
+    "SessionTechnique",
+    "Technique",
+    "VideoLink",
+    "technique_prereq",
+]

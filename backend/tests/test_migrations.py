@@ -21,6 +21,13 @@ def test_downgrade_and_upgrade_again(engine: Engine) -> None:
     assert "technique" not in inspect(engine).get_table_names()
 
     run_alembic(engine, "upgrade", "head")
-    assert {"position", "technique", "technique_prereq", "video_link", "common_mistake"} <= set(
-        inspect(engine).get_table_names()
-    )
+    assert {
+        "position",
+        "technique",
+        "technique_prereq",
+        "video_link",
+        "common_mistake",
+        "class_session",
+        "session_technique",
+        "my_mistake",
+    } <= set(inspect(engine).get_table_names())
