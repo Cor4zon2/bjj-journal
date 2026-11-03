@@ -8,6 +8,7 @@ import type {
   VideoLink,
   VideoLinkCreate,
 } from './types'
+import { supabase } from '../lib/supabase'
 
 export const API_URL: string = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
 
@@ -39,11 +40,26 @@ async function errorMessage(response: Response): Promise<string> {
   return `API returned ${response.status}`
 }
 
+type AuthFailureHandler = (status: 401 | 403) => void
+let onAuthFailure: AuthFailureHandler | null = null
+
+/** Called by the auth provider: the API rejected the token (401) or the account (403). */
+export function setAuthFailureHandler(handler: AuthFailureHandler | null): void {
+  onAuthFailure = handler
+}
+
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers)
   if (init.body !== undefined) headers.set('Content-Type', 'application/json')
+  if (supabase) {
+    // getSession() refreshes an expired access token before handing it out.
+    const { data } = await supabase.auth.getSession()
+    const token = data.session?.access_token
+    if (token) headers.set('Authorization', `Bearer ${token}`)
+  }
   const response = await fetch(`${API_URL}${path}`, { ...init, headers })
   if (!response.ok) {
+    if (response.status === 401 || response.status === 403) onAuthFailure?.(response.status)
     throw new ApiError(response.status, await errorMessage(response))
   }
   if (response.status === 204) return undefined as T

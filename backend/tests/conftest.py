@@ -16,12 +16,33 @@ from sqlalchemy import Engine, StaticPool, text
 from sqlalchemy.orm import Session, sessionmaker
 
 from alembic import command
+from app.config import get_settings
+from app.core import auth
 from app.db import Base, get_db, make_engine
 from app.main import create_app
 from app.seed.loader import load_seed, read_seed_file
+from tests.tokens import OWNER_ID, SUPABASE_URL, FakeJwks, bearer, es256_token
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL", "sqlite://")
+
+
+@pytest.fixture(autouse=True)
+def auth_env(monkeypatch: pytest.MonkeyPatch) -> Iterator[None]:
+    """Every test runs against a fake Supabase project. Env vars win over any local `.env`."""
+    monkeypatch.setenv("ENVIRONMENT", "test")
+    monkeypatch.setenv("SUPABASE_URL", SUPABASE_URL)
+    monkeypatch.setenv("OWNER_USER_ID", OWNER_ID)
+    monkeypatch.setenv("SUPABASE_JWT_SECRET", "")
+    monkeypatch.setenv("AUTH_DISABLED", "false")
+    monkeypatch.setenv("CORS_ORIGINS", '["http://localhost:5173"]')
+    get_settings.cache_clear()
+    yield
+    get_settings.cache_clear()
+
+
+def fake_verifier() -> auth.TokenVerifier:
+    return auth.TokenVerifier(get_settings(), jwks_client=FakeJwks())
 
 
 def alembic_config(engine: Engine) -> Config:
@@ -75,15 +96,19 @@ def db(engine: Engine, session_factory: sessionmaker[Session]) -> Iterator[Sessi
 
 @pytest.fixture
 def client(db: Session, session_factory: sessionmaker[Session]) -> Iterator[TestClient]:
-    """API client; like in production, every request gets its own session."""
+    """API client signed in as the owner; like in production, each request gets its own session.
+
+    Tests about authentication override or remove the `Authorization` header.
+    """
     app = create_app()
+    app.dependency_overrides[auth.get_token_verifier] = fake_verifier
 
     def _get_db() -> Iterator[Session]:
         with session_factory() as session:
             yield session
 
     app.dependency_overrides[get_db] = _get_db
-    with TestClient(app) as test_client:
+    with TestClient(app, headers=bearer(es256_token())) as test_client:
         yield test_client
 
 

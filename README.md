@@ -8,9 +8,8 @@ See [ROADMAP.md](ROADMAP.md) for the plan, data model and phases.
 
 ## Status
 
-Phase 1 (technique library) done: 17 seed techniques across guard pulls, the De La Riva tree and white belt fundamentals. Browse and filter them, then edit steps, key details, notes and mastery from a phone. YouTube links play inline and Instagram Reels open in the app.
-
-No video links are seeded. Add your own from a technique page; when a technique has none, the page offers a YouTube search.
+- Phase 1 (technique library): 17 seed techniques across guard pulls, the De La Riva tree and white belt fundamentals. Browse and filter them, then edit steps, key details, notes and mastery from a phone. YouTube links play inline and Instagram Reels open in the app. No video links are seeded; add your own from a technique page, and when a technique has none, the page offers a YouTube search.
+- Phase 2 (auth and deployment): Supabase login for a single owner account, JWT checks on every API route except `/health`, Render + Vercel deploy config, installable PWA. See [docs/DEPLOY.md](docs/DEPLOY.md) to put it online.
 
 ## Getting started
 
@@ -26,6 +25,8 @@ make dev
 ```
 
 This starts Postgres, applies migrations, loads the seed techniques, and runs the FastAPI backend and the Vite frontend with hot reload. Open http://localhost:5173 to see the technique library. The API runs on http://localhost:8000 (interactive docs at http://localhost:8000/docs).
+
+Locally there is no login: without Supabase settings the frontend skips the login screen and the backend runs with `AUTH_DISABLED=true` (refused when `ENVIRONMENT=production`).
 
 Stop it with `Ctrl+C`, or `make down` if it runs in the background.
 
@@ -46,7 +47,7 @@ make seed
 ```
 
 ```bash
-cd backend && uv run uvicorn app.main:app --reload
+cd backend && uv run uvicorn --factory app.main:create_app --reload
 ```
 
 ```bash
@@ -60,9 +61,12 @@ Defaults work for local development. To override them, copy the examples:
 - `backend/.env.example` → `backend/.env`
 - `frontend/.env.example` → `frontend/.env.local`
 
+To try real login locally, set `SUPABASE_URL` and `OWNER_USER_ID` in `backend/.env`, `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `frontend/.env.local`, then run `AUTH_DISABLED=false make dev`. Running the backend without Docker and without those settings needs `AUTH_DISABLED=true` in `backend/.env`.
+
 ### Database and seed data
 
 - Migrations live in `backend/alembic/`. After changing a model, create one with `cd backend && uv run alembic revision --autogenerate -m "what changed"`.
+- Migrations and the seed loader run automatically on `make dev` and on every deploy (`backend/scripts/start.sh`).
 - Seed techniques live in `backend/app/seed/techniques.yaml`. `make seed` adds the techniques and positions that are missing, matched by slug. It never overwrites existing ones, so your notes and mastery levels are safe.
 - `cd backend && uv run python -m app.seed --reset` wipes the library and reloads the seed. This deletes your notes and mastery levels.
 
@@ -88,5 +92,7 @@ Backend tests use in-memory SQLite by default. Set `TEST_DATABASE_URL` to run th
 backend/    FastAPI app (uv, Ruff, mypy, pytest)
 frontend/   React + TypeScript + Vite + Tailwind (ESLint, Prettier, Vitest)
 docker-compose.yml   local Postgres + backend + frontend
+render.yaml          Render Blueprint for the API
+docs/DEPLOY.md       Supabase, Render and Vercel setup
 Makefile    dev, lint, typecheck, test, check
 ```

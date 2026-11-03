@@ -27,6 +27,33 @@
         }
       }
     },
+    "/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Me",
+        "description": "The signed-in owner. Used by the frontend to confirm the session works end to end.",
+        "operationId": "me_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/positions": {
       "get": {
         "tags": [
@@ -49,7 +76,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       },
       "post": {
         "tags": [
@@ -88,7 +120,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/positions/{position_id}": {
@@ -98,6 +135,11 @@
         ],
         "summary": "Get Position",
         "operationId": "get_position_positions__position_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "position_id",
@@ -138,6 +180,11 @@
         ],
         "summary": "Update Position",
         "operationId": "update_position_positions__position_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "position_id",
@@ -189,6 +236,11 @@
         "summary": "Delete Position",
         "description": "Delete a position. Techniques that started or ended there keep existing.",
         "operationId": "delete_position_positions__position_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "position_id",
@@ -224,6 +276,11 @@
         ],
         "summary": "List Techniques",
         "operationId": "list_techniques_techniques_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "position_id",
@@ -381,6 +438,11 @@
         ],
         "summary": "Create Technique",
         "operationId": "create_technique_techniques_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -422,6 +484,11 @@
         ],
         "summary": "Get Technique",
         "operationId": "get_technique_techniques__technique_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "technique_id",
@@ -462,6 +529,11 @@
         ],
         "summary": "Update Technique",
         "operationId": "update_technique_techniques__technique_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "technique_id",
@@ -512,6 +584,11 @@
         ],
         "summary": "Delete Technique",
         "operationId": "delete_technique_techniques__technique_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "technique_id",
@@ -547,6 +624,11 @@
         ],
         "summary": "Get Technique By Slug",
         "operationId": "get_technique_by_slug_techniques_by_slug__slug__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "slug",
@@ -589,6 +671,11 @@
         ],
         "summary": "Add Video",
         "operationId": "add_video_techniques__technique_id__videos_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "technique_id",
@@ -641,6 +728,11 @@
         ],
         "summary": "Update Video",
         "operationId": "update_video_videos__video_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "video_id",
@@ -691,6 +783,11 @@
         ],
         "summary": "Delete Video",
         "operationId": "delete_video_videos__video_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "video_id",
@@ -726,6 +823,11 @@
         ],
         "summary": "Add Common Mistake",
         "operationId": "add_common_mistake_techniques__technique_id__common_mistakes_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "technique_id",
@@ -778,6 +880,11 @@
         ],
         "summary": "Update Common Mistake",
         "operationId": "update_common_mistake_common_mistakes__mistake_id__patch",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "mistake_id",
@@ -828,6 +935,11 @@
         ],
         "summary": "Delete Common Mistake",
         "operationId": "delete_common_mistake_common_mistakes__mistake_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "mistake_id",
@@ -989,6 +1101,31 @@
           "version"
         ],
         "title": "HealthResponse"
+      },
+      "MeResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Email"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email"
+        ],
+        "title": "MeResponse"
       },
       "PositionCreate": {
         "properties": {
@@ -1964,6 +2101,12 @@
         },
         "type": "object",
         "title": "VideoLinkUpdate"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
       }
     }
   }

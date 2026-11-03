@@ -4,6 +4,10 @@ The frontend generates its TypeScript API types from this (see `npm run gen:api`
 """
 
 import json
+import os
+
+# The schema doesn't depend on auth settings; don't require Supabase config to dump it.
+os.environ.setdefault("AUTH_DISABLED", "true")
 
 from app.main import create_app
 
