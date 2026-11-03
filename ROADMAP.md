@@ -145,12 +145,12 @@ achievement      id, code, unlocked_at
 Each phase ends with something usable and deployed-ready. Check boxes are updated as work lands.
 
 ### Phase 0 — Foundations
-- [ ] Monorepo scaffold: `frontend/` (Vite + React + TS + Tailwind) and `backend/` (FastAPI + uv)
-- [ ] `docker-compose.yml` with local Postgres; `make dev` starts everything
-- [ ] Linting and formatting: ESLint + Prettier, Ruff + mypy
-- [ ] Tests: Vitest (frontend), pytest (backend)
-- [ ] GitHub Actions CI: lint, type-check, test on every push
-- [ ] `.env.example` files and README setup steps
+- [x] Monorepo scaffold: `frontend/` (Vite + React + TS + Tailwind) and `backend/` (FastAPI + uv)
+- [x] `docker-compose.yml` with local Postgres; `make dev` starts everything
+- [x] Linting and formatting: ESLint + Prettier, Ruff + mypy
+- [x] Tests: Vitest (frontend), pytest (backend)
+- [x] GitHub Actions CI: lint, type-check, test on every push
+- [x] `.env.example` files and README setup steps
 
 **Done when:** `make dev` opens a hello page that calls `/health` on the API, and CI is green.
 

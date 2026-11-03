@@ -1,0 +1,56 @@
+# Local development stack: Postgres + FastAPI + Vite, all with hot reload.
+# Start with `make dev`, then open http://localhost:5173
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: bjj
+      POSTGRES_PASSWORD: bjj
+      POSTGRES_DB: bjj_journal
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bjj -d bjj_journal"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+  backend:
+    build: ./backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      DATABASE_URL: postgresql+psycopg://bjj:bjj@db:5432/bjj_journal
+      CORS_ORIGINS: '["http://localhost:5173"]'
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  frontend:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev"
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  db-data:
+  frontend-node-modules:
