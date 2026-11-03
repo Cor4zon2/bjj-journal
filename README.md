@@ -1,6 +1,6 @@
 # BJJ Journal
 
-A personal Brazilian Jiu-Jitsu learning app: technique library, class log, mistake tracking and analysis, with progress tracking and a skill tree map. Built to be used on the phone right after class.
+A personal Brazilian Jiu-Jitsu learning app: technique library, class log, mistake tracking and analysis, with progress tracking, a game plan and a full technique tree. Built to be used on the phone right after class.
 
 **Stack:** React + TypeScript (PWA) · FastAPI · Supabase (Postgres + Auth)
 
