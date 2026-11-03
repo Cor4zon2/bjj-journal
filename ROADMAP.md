@@ -1,6 +1,6 @@
 # BJJ Journal — Roadmap
 
-A personal web app for learning Brazilian Jiu-Jitsu: a technique library, a class log, mistake tracking and analysis, with an RPG-style progression layer and a skill tree map.
+A personal web app for learning Brazilian Jiu-Jitsu: a technique library, a class log, mistake tracking and analysis, with progress tracking (technique mastery, stats, streak) and a skill tree map.
 
 - **User:** one person (the owner). Single account, no sign-up.
 - **Use:** log a class from the phone right after training; review techniques and mistakes on laptop or phone.
@@ -17,13 +17,13 @@ Design mockups for every screen: [BJJ Journal — App Design](https://claude.ai/
 
 | Tab | Purpose |
 |---|---|
-| **Home** | Belt & stripes, level, XP bar, stats (Guard, Sweeps, Passing, Escapes, Submissions, Takedowns), training streak, current focus techniques, top mistake this month, **Log today's class** button |
+| **Home** | Belt & stripes, classes and mat time, stats (Guard, Sweeps, Passing, Escapes, Submissions, Takedowns), training streak, current focus techniques, top mistake this month, **Log today's class** button |
 | **Map** | Skill tree of positions and techniques. Nodes are locked / learning / mastered. Tap a node to open the technique |
-| **Log** | Class entries: date, class type, techniques covered, rolling notes, mistakes, energy level |
+| **Log** | Class entries: date, rolling notes (the main field), techniques covered, mistakes. All classes are Gi and 2 hours, so there is no class type, duration or energy field |
 | **Mistakes** | My mistakes (status: Open → Working on it → Fixed), analysis charts, common mistakes per technique |
 | **Technique page** | Steps, key details, common mistakes + fixes, YouTube / Instagram Reels links, my notes, mastery level, times hit in rolling |
 
-### Game rules
+### Progress rules
 
 **Technique mastery levels**
 
@@ -36,24 +36,12 @@ Design mockups for every screen: [BJJ Journal — App Design](https://claude.ai/
 | 4 | Hit on resisting partners | Landed it repeatedly against resistance |
 | 5 | Mastered | Reliable; can teach it |
 
-**XP**
+No XP, player levels or achievements: progress is shown by technique mastery, stats and the training streak.
 
-| Action | XP |
-|---|---|
-| Log a class | +50 |
-| Raise a technique's mastery level | +100 |
-| Hit a technique in rolling | +20 |
-| Log a mistake (with a note) | +10 |
-| Mark a mistake fixed | +75 |
-| Unlock an achievement | varies |
-
-- **Player level:** XP curve `xp_for_level(n) = 100 * n^1.5` (tunable in one place on the backend).
 - **Stats:** each stat (Guard, Sweeps, …) = sum of mastery levels of techniques in that category, scaled 0–10.
 - **Unlocks:** a technique unlocks when all of its prerequisites reach **Drilled**.
 - **Streak:** consecutive weeks with at least one logged class.
-- **Belt:** set manually. The game never promotes you.
-
-**Starter achievements:** First guard pull · Hook keeper (no "lost DLR hook" mistake in 3 classes) · 10 classes in a month · Bug fixer (5 mistakes fixed) · Sweep artist (3 different sweeps hit in rolling) · Iron streak (8 weeks in a row).
+- **Belt:** set manually. The app never promotes you.
 
 ---
 
@@ -66,7 +54,7 @@ Design mockups for every screen: [BJJ Journal — App Design](https://claude.ai/
  ┌──────────────────┐      ┌───────────────────────┐
  │ Frontend         │      │ Backend               │
  │ React + TS + Vite│ ───▶ │ FastAPI (Python)      │
- │ Tailwind         │ JWT  │ XP / levels / unlocks │
+ │ Tailwind         │ JWT  │ stats / unlocks       │
  │ React Flow       │      │ mistake analysis      │
  │ Recharts         │      │ SQLAlchemy + Alembic  │
  └──────────────────┘      └──────────┬────────────┘
@@ -89,13 +77,13 @@ bjj-journal/
 │   └── src/
 │       ├── api/         typed API client (generated from OpenAPI)
 │       ├── features/    home, map, log, mistakes, techniques
-│       └── components/  shared UI (XP bar, belt, cards)
+│       └── components/  shared UI (belt, stat bars, cards)
 ├── backend/             FastAPI app
 │   ├── app/
 │   │   ├── api/         routers
 │   │   ├── models/      SQLAlchemy models
 │   │   ├── schemas/     Pydantic schemas
-│   │   ├── services/    xp, unlocks, analysis
+│   │   ├── services/    stats, unlocks, analysis
 │   │   └── seed/        starting techniques (YAML)
 │   ├── alembic/         migrations
 │   └── tests/
@@ -119,7 +107,7 @@ Alternative if running on a personal VPS: the same `docker-compose.yml` with a r
 ## 3. Data model
 
 ```
-profile          id, belt, stripes, xp, focus_technique_ids[], created_at
+profile          id, belt, stripes, focus_technique_ids[], created_at
 position         id, name, category (guard/top/bottom/standing/back), description
 technique        id, name, type (pull/sweep/submission/pass/escape/takedown/entry/control),
                  stat (guard/sweeps/passing/escapes/submissions/takedowns),
@@ -128,17 +116,14 @@ technique        id, name, type (pull/sweep/submission/pass/escape/takedown/entr
 technique_prereq technique_id, prereq_id
 video_link       id, technique_id, url, source (youtube/instagram/other), title, start_seconds
 common_mistake   id, technique_id, title, why_it_happens, fix
-class_session    id, date, type (gi class/open mat/drilling/competition), duration_min,
-                 energy (1–5), rolling_notes, created_at
+class_session    id, date, rolling_notes, created_at
 session_technique session_id, technique_id, kind (taught/drilled/hit_in_rolling)
 my_mistake       id, session_id, technique_id?, position_id?, category
                  (posture/grips/timing/hook retention/defense/other),
                  description, status (open/working/fixed), fixed_at
-xp_event         id, kind, amount, ref_id, created_at
-achievement      id, code, unlocked_at
 ```
 
-`xp_event` is an append-only log, so XP totals can be recomputed and audited.
+Every class is a 2-hour Gi class, so `class_session` has no type, duration or energy; totals such as mat time are `classes × 2 h`.
 
 ---
 
@@ -189,16 +174,13 @@ Deploying this early means every later phase can be used after class straight aw
 
 **Done when:** a full class can be logged on the phone in under 2 minutes, mistakes included.
 
-### Phase 4 — Game layer and Home
-- [ ] XP service: XP events for logging, mastery changes, hits, fixed mistakes
-- [ ] Level curve, stats calculation, weekly streak
+### Phase 4 — Progress and Home
+- [ ] Stats calculation and weekly streak
 - [ ] Unlock rules from prerequisites
-- [ ] Achievements engine + the starter achievements
-- [ ] Home screen: belt & stripes, level, XP bar, stats, streak, focus techniques, top mistake, log button
-- [ ] Level-up and achievement toasts
-- [ ] Unit tests for every XP and unlock rule
+- [ ] Home screen: belt & stripes, classes and mat time, stats, streak, focus techniques, top mistake, log button
+- [ ] Unit tests for every stats and unlock rule
 
-**Done when:** logging a class visibly moves the XP bar, and raising a technique to Drilled unlocks the next one.
+**Done when:** logging a class updates the stats and streak on Home, and raising a technique to Drilled unlocks the next one.
 
 ### Phase 5 — Skill tree map
 - [ ] Map API: positions as groups, techniques as nodes, prerequisites as edges
@@ -275,5 +257,5 @@ Gi techniques, matched to a 1-stripe white belt focusing on guard pulling and De
 | **M1 — Library** | 0, 1 | Technique library runs locally |
 | **M2 — On my phone** | 2 | Live online, installable, login protected |
 | **M3 — Training journal** | 3 | Log classes and mistakes after training |
-| **M4 — Game on** | 4, 5 | XP, levels, achievements, skill tree map |
+| **M4 — Progress** | 4, 5 | Stats, streak, unlocks, skill tree map |
 | **M5 — Insight** | 6, 7 | Mistake analysis and polish |
