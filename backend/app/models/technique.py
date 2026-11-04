@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import (
     JSON,
@@ -11,10 +11,11 @@ from sqlalchemy import (
     String,
     Table,
     Text,
+    exists,
     func,
 )
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, aliased, column_property, mapped_column, relationship
 
 from app.db import Base
 from app.models.enums import (
@@ -23,6 +24,7 @@ from app.models.enums import (
     POSITION_CATEGORIES,
     STATS,
     TECHNIQUE_TYPES,
+    UNLOCK_MASTERY,
     VIDEO_SOURCES,
 )
 
@@ -112,6 +114,10 @@ class Technique(Base):
         order_by=lambda: CommonMistake.id,
     )
 
+    if TYPE_CHECKING:
+        # Set below the class: True while any prerequisite is still under Drilled.
+        locked: bool
+
 
 class VideoLink(Base):
     __tablename__ = "video_link"
@@ -144,3 +150,18 @@ class CommonMistake(Base):
     fix: Mapped[str] = mapped_column(Text, default="")
 
     technique: Mapped[Technique] = relationship(back_populates="common_mistakes")
+
+
+# Unlock rule: a technique unlocks when all of its prerequisites reach Drilled.
+# Loaded with the technique in the same query, so lists and nested refs stay one round trip.
+# `services.progress.is_unlocked` is the same rule in Python.
+_prereq = aliased(Technique)
+Technique.locked = column_property(  # type: ignore[assignment]
+    exists()
+    .where(
+        technique_prereq.c.technique_id == Technique.id,
+        technique_prereq.c.prereq_id == _prereq.id,
+        _prereq.mastery < UNLOCK_MASTERY,
+    )
+    .correlate_except(technique_prereq, _prereq)
+)

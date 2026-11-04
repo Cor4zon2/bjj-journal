@@ -1,9 +1,9 @@
 # Starting technique library: Gi, 1-stripe white belt, focus on guard pulling and De La Riva.
 #
 # Positions are described from my point of view. Mastery levels:
-#   0 Locked · 1 Seen · 2 Drilled · 3 Hit in rolling · 4 Hit on resisting partners · 5 Mastered
-# A technique unlocks once all of its prerequisites reach Drilled (2), so the starting
-# levels below are consistent with that rule.
+#   0 Not started · 1 Seen · 2 Drilled · 3 Hit in rolling · 4 Hit on resisting partners · 5 Mastered
+# A technique is locked until all of its prerequisites reach Drilled (2); the starting
+# levels below never go above 0 on a locked technique.
 #
 # Load with `python -m app.seed`. Existing techniques (matched by slug) are never overwritten,
 # so my notes and mastery levels survive a re-run.

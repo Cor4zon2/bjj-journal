@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
-from app.api import health, me, positions, sessions, techniques
+from app.api import health, me, positions, progress, sessions, techniques
 from app.config import get_settings
 from app.core.auth import require_owner
 
@@ -32,5 +32,6 @@ def create_app() -> FastAPI:
     protected.include_router(positions.router)
     protected.include_router(techniques.router)
     protected.include_router(sessions.router)
+    protected.include_router(progress.router)
     app.include_router(protected)
     return app

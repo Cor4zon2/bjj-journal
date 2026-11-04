@@ -6,6 +6,9 @@ import type {
   Mistake,
   MistakeUpdate,
   Position,
+  Profile,
+  ProfileUpdate,
+  Progress,
   Technique,
   TechniqueFilters,
   TechniqueSummary,
@@ -153,4 +156,19 @@ export function updateMistake(id: number, changes: MistakeUpdate): Promise<Mista
 
 export function deleteMistake(id: number): Promise<void> {
   return request(`/mistakes/${id}`, { method: 'DELETE' })
+}
+
+// ---- Progress -----------------------------------------------------------------
+
+/** Everything Home shows. `today` is the phone's local date, so weeks and months match it. */
+export function getProgress(today: string, signal?: AbortSignal): Promise<Progress> {
+  return request(`/progress${queryString({ today })}`, { signal })
+}
+
+export function getProfile(signal?: AbortSignal): Promise<Profile> {
+  return request('/profile', { signal })
+}
+
+export function updateProfile(changes: ProfileUpdate): Promise<Profile> {
+  return request('/profile', { method: 'PATCH', body: JSON.stringify(changes) })
 }

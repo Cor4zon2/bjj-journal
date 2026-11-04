@@ -4,8 +4,9 @@ import { ApiError } from '../../api/client'
 import type { TechniqueRef } from '../../api/types'
 import { MasteryPips } from '../../components/MasteryPips'
 import { Badge, ErrorMessage, Section } from '../../components/ui'
-import { STAT_LABELS, typeLabel } from '../../lib/labels'
+import { STAT_LABELS, UNLOCK_MASTERY, typeLabel } from '../../lib/labels'
 import { EditableList } from './EditableList'
+import { FocusToggle } from './FocusToggle'
 import { MasteryPicker } from './MasteryPicker'
 import { NotesEditor } from './NotesEditor'
 import { VideosSection } from './VideosSection'
@@ -44,6 +45,7 @@ export function TechniquePage() {
           <Badge tone="amber">{typeLabel(t.type)}</Badge>
           <Badge>{STAT_LABELS[t.stat]}</Badge>
           {t.gi_only && <Badge tone="blue">Gi only</Badge>}
+          {t.locked && <Badge>🔒 Locked</Badge>}
         </div>
         <h1 className="text-2xl leading-tight font-bold">{t.name}</h1>
         {(t.from_position || t.to_position) && (
@@ -60,7 +62,20 @@ export function TechniquePage() {
             Hit {t.times_hit} {t.times_hit === 1 ? 'time' : 'times'} in rolling
           </span>
         </div>
+        <FocusToggle technique={t} />
       </header>
+
+      {t.locked && (
+        <p className="rounded-xl bg-slate-900 px-4 py-3 text-sm text-slate-300">
+          Locked: it unlocks when{' '}
+          {t.prereqs
+            .filter((p) => p.mastery < UNLOCK_MASTERY)
+            .map((p) => p.name)
+            .join(', ')}{' '}
+          {t.prereqs.filter((p) => p.mastery < UNLOCK_MASTERY).length === 1 ? 'reaches' : 'reach'}{' '}
+          Drilled. You can still log it as Seen.
+        </p>
+      )}
 
       <MasteryPicker technique={t} />
 
@@ -132,7 +147,9 @@ function TechniqueLinks({
               to={`/techniques/${technique.slug}`}
               className="flex items-center gap-2 rounded-full bg-slate-800 px-3 py-1.5 text-sm"
             >
+              {technique.locked && <span aria-hidden="true">🔒</span>}
               {technique.name}
+              {technique.locked && <span className="sr-only"> (locked)</span>}
               <MasteryPips level={technique.mastery} />
             </Link>
           </li>

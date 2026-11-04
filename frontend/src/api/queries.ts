@@ -5,10 +5,13 @@ import {
   deleteMistake,
   deleteSession,
   deleteVideo,
+  getProfile,
+  getProgress,
   getSession,
   listMistakes,
   listSessions,
   updateMistake,
+  updateProfile,
   updateSession,
   getTechniqueBySlug,
   listPositions,
@@ -19,6 +22,7 @@ import type {
   ClassSessionCreate,
   ClassSessionUpdate,
   MistakeUpdate,
+  ProfileUpdate,
   Technique,
   TechniqueFilters,
   TechniqueUpdate,
@@ -33,6 +37,8 @@ export const queryKeys = {
   sessions: ['sessions'] as const,
   session: (id: number) => ['sessions', id] as const,
   mistakes: ['mistakes'] as const,
+  progress: ['progress'] as const,
+  profile: ['profile'] as const,
 }
 
 export function usePositions() {
@@ -65,7 +71,9 @@ export function useUpdateTechnique(technique: Technique) {
     mutationFn: (changes: TechniqueUpdate) => updateTechnique(technique.id, changes),
     onSuccess: (updated) => {
       queryClient.setQueryData(queryKeys.technique(updated.slug), updated)
-      void queryClient.invalidateQueries({ queryKey: ['techniques', 'list'] })
+      // Mastery changes stats and can lock or unlock other techniques.
+      void queryClient.invalidateQueries({ queryKey: ['techniques'], exact: false })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.progress })
     },
   })
 }
@@ -104,7 +112,8 @@ export function useSession(id: number) {
   })
 }
 
-/** A class changes the history, the mistakes list and techniques' "times hit". */
+/** A class changes the history, the mistakes list, techniques' mastery and "times hit",
+ * and everything on Home. */
 function useInvalidateLog() {
   const queryClient = useQueryClient()
   return () =>
@@ -112,6 +121,7 @@ function useInvalidateLog() {
       queryClient.invalidateQueries({ queryKey: queryKeys.sessions }),
       queryClient.invalidateQueries({ queryKey: queryKeys.mistakes }),
       queryClient.invalidateQueries({ queryKey: queryKeys.techniques }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.progress }),
     ])
 }
 
@@ -161,6 +171,7 @@ export function useUpdateMistake() {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.mistakes }),
         queryClient.invalidateQueries({ queryKey: queryKeys.sessions }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.progress }),
       ]),
   })
 }
@@ -173,6 +184,34 @@ export function useDeleteMistake() {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.mistakes }),
         queryClient.invalidateQueries({ queryKey: queryKeys.sessions }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.progress }),
       ]),
+  })
+}
+
+// ---- Progress -----------------------------------------------------------------
+
+export function useProgress(today: string) {
+  return useQuery({
+    queryKey: [...queryKeys.progress, today],
+    queryFn: ({ signal }) => getProgress(today, signal),
+  })
+}
+
+export function useProfile() {
+  return useQuery({
+    queryKey: queryKeys.profile,
+    queryFn: ({ signal }) => getProfile(signal),
+  })
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (changes: ProfileUpdate) => updateProfile(changes),
+    onSuccess: (profile) => {
+      queryClient.setQueryData(queryKeys.profile, profile)
+      return queryClient.invalidateQueries({ queryKey: queryKeys.progress })
+    },
   })
 }

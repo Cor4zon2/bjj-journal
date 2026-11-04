@@ -1,6 +1,6 @@
 """Class log and my mistakes."""
 
-from collections import Counter
+from collections import Counter, defaultdict
 from collections.abc import Iterable
 from datetime import UTC, datetime
 from typing import Annotated
@@ -22,6 +22,7 @@ from app.schemas.journal import (
     SessionMistakeWrite,
     SessionTechniqueWrite,
 )
+from app.services.progress import raised_mastery
 
 router = APIRouter(tags=["class log"])
 
@@ -80,6 +81,18 @@ def _apply_hit_changes(db: DbSession, before: Counter[int], after: Counter[int])
         technique = db.get(Technique, technique_id)
         if technique is not None:
             technique.times_hit = max(0, technique.times_hit + delta)
+
+
+def _raise_mastery(db: DbSession, rows: Iterable[tuple[int, str]]) -> None:
+    """Logging a technique raises its mastery: taught → Seen, drilled → Drilled, hit → Hit in
+    rolling. Never lowers it, so deleting or editing a class leaves mastery alone."""
+    kinds: dict[int, list[str]] = defaultdict(list)
+    for technique_id, kind in rows:
+        kinds[technique_id].append(kind)
+    for technique_id, technique_kinds in kinds.items():
+        technique = db.get(Technique, technique_id)
+        if technique is not None:
+            technique.mastery = raised_mastery(technique.mastery, technique_kinds)
 
 
 def _technique_rows(rows: list[SessionTechniqueWrite]) -> list[SessionTechnique]:
@@ -158,6 +171,7 @@ def create_session(body: ClassSessionCreate, response: Response, db: DbSession) 
     )
     db.add(session)
     _apply_hit_changes(db, Counter(), _hits(techniques))
+    _raise_mastery(db, ((row.technique_id, row.kind) for row in techniques))
     db.commit()
     return _reload_session(db, session.id)
 
@@ -180,10 +194,14 @@ def update_session(session_id: int, body: ClassSessionUpdate, db: DbSession) -> 
     if body.techniques is not None:
         _check_exist(db, Technique, (row.technique_id for row in body.techniques))
         before = _hits(session.techniques)
+        before_rows = {(row.technique_id, row.kind) for row in session.techniques}
         session.techniques.clear()
         db.flush()
         session.techniques.extend(_technique_rows(body.techniques))
         _apply_hit_changes(db, before, _hits(session.techniques))
+        # Only rows added in this edit: a level lowered by hand since then stays lowered.
+        after_rows = {(row.technique_id, row.kind) for row in session.techniques}
+        _raise_mastery(db, after_rows - before_rows)
 
     if body.mistakes is not None:
         _sync_mistakes(db, session, body.mistakes)

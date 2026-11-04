@@ -139,6 +139,7 @@ class TechniqueRef(BaseModel):
     slug: str
     name: str
     mastery: int
+    locked: bool = Field(description="True until every prerequisite reaches Drilled.")
 
 
 class TechniqueSummary(BaseModel):
@@ -153,6 +154,7 @@ class TechniqueSummary(BaseModel):
     stat: Stat
     summary: str
     mastery: int
+    locked: bool = Field(description="True until every prerequisite reaches Drilled.")
     times_hit: int
     gi_only: bool
     from_position: PositionRef | None

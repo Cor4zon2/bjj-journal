@@ -25,7 +25,7 @@ def test_seed_file_covers_the_roadmap() -> None:
 
 
 def test_seed_levels_follow_the_unlock_rule() -> None:
-    """Anything above Locked must have all prerequisites at Drilled or better."""
+    """A locked technique (a prerequisite under Drilled) starts at 0."""
     seed = read_seed_file()
     mastery = {t.slug: t.mastery for t in seed.techniques}
 

@@ -150,7 +150,7 @@ export function TechniqueListPage() {
 }
 
 function TechniqueCard({ technique }: { technique: TechniqueSummary }) {
-  const locked = technique.mastery === 0
+  const { locked } = technique
   const route = [technique.from_position?.name, technique.to_position?.name]
     .filter(Boolean)
     .join(' → ')
@@ -165,6 +165,7 @@ function TechniqueCard({ technique }: { technique: TechniqueSummary }) {
         <span className="font-semibold">
           {locked && <span aria-hidden="true">🔒 </span>}
           {technique.name}
+          {locked && <span className="sr-only"> (locked)</span>}
         </span>
         <Badge>{typeLabel(technique.type)}</Badge>
       </div>

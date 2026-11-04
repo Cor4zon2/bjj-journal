@@ -74,7 +74,8 @@ def test_invalid_filters_are_rejected(client: TestClient) -> None:
 def test_technique_detail(client: TestClient, seeded: Session) -> None:
     technique = _by_slug(client, "dlr-back-take")
 
-    assert technique["mastery_name"] == "Locked"
+    assert technique["mastery_name"] == "Not started"
+    assert technique["locked"] is True
     assert technique["steps"]
     assert technique["key_details"]
     assert technique["common_mistakes"][0]["fix"]
