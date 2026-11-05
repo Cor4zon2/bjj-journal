@@ -22,7 +22,11 @@ export function LoginScreen({ notice }: { notice?: string }) {
 
   return (
     <main className="flex min-h-svh flex-col items-center justify-center bg-slate-950 p-6 text-slate-100">
-      <img src="/icons/pwa-192x192.png" alt="" className="mb-4 h-20 w-20 rounded-2xl" />
+      <img
+        src={`${import.meta.env.BASE_URL}icons/pwa-192x192.png`}
+        alt=""
+        className="mb-4 h-20 w-20 rounded-2xl"
+      />
       <h1 className="mb-8 text-3xl font-bold tracking-tight">BJJ Journal</h1>
       <form onSubmit={handleSubmit} className="flex w-full max-w-sm flex-col gap-4">
         {notice && !error && (

@@ -1,6 +1,6 @@
 # Deploying BJJ Journal
 
-Three free-tier services: **Supabase** (Postgres + login), **Render** (API), **Vercel** (web app).
+Three free-tier services: **Supabase** (Postgres + login), **Render** (API), and **GitHub Pages** or **Vercel** (web app).
 Do the steps in order; each one needs a value from the step before.
 
 ## 1. Supabase: database and the owner account
@@ -26,14 +26,37 @@ The API verifies tokens against the project's public keys (`/auth/v1/.well-known
    | `DATABASE_URL` | Supabase session pooler URI |
    | `SUPABASE_URL` | `https://<ref>.supabase.co` |
    | `OWNER_USER_ID` | your user's UID |
-   | `CORS_ORIGINS` | `["https://<your-app>.vercel.app"]`. You'll know the URL after step 3; put a placeholder for now and update it then. |
+   | `CORS_ORIGINS` | The web app's origin: `["https://<owner>.github.io"]` for GitHub Pages (no repo path), or `["https://<your-app>.vercel.app"]` for Vercel. |
 
 3. Deploy. Each deploy runs `alembic upgrade head` and then the seed loader before starting (see `backend/scripts/start.sh`). The seed loader only adds techniques that are missing, so your notes and mastery levels are kept. If a migration fails, the new version doesn't start and the old one keeps serving.
 4. Check `https://<service>.onrender.com/health` returns `{"status":"ok",...}` and `/techniques` returns 401 (no token).
 
 The free plan sleeps after 15 minutes idle. The first request after that takes up to a minute.
 
-## 3. Vercel: the web app
+## 3. The web app
+
+Pick one: GitHub Pages (3a) or Vercel (3b).
+
+### 3a. GitHub Pages
+
+The workflow [`.github/workflows/pages.yml`](../.github/workflows/pages.yml) builds the app and publishes it to `https://<owner>.github.io/<repo>/` on every push to `main`.
+
+1. Repo → **Settings** → **Pages** → **Source**: **GitHub Actions**.
+2. Repo → **Settings** → **Secrets and variables** → **Actions** → **Variables** tab → add these repository variables (they end up in the public JavaScript bundle, so variables rather than secrets):
+
+   | Variable | Value |
+   |---|---|
+   | `VITE_API_URL` | `https://<service>.onrender.com` |
+   | `VITE_SUPABASE_URL` | `https://<ref>.supabase.co` |
+   | `VITE_SUPABASE_ANON_KEY` | the anon / publishable key |
+
+3. **Actions** → **Deploy to GitHub Pages** → **Run workflow** (or push to `main`).
+4. Make sure `CORS_ORIGINS` on Render is `["https://<owner>.github.io"]`.
+5. Optional: Supabase → Authentication → URL Configuration → set **Site URL** to `https://<owner>.github.io/<repo>/`.
+
+The build sets `BASE_PATH=/<repo>/` so links, icons, the PWA manifest and the service worker all live under the repo path. GitHub Pages has no rewrites, so the workflow copies `index.html` to `404.html`: deep links such as `/log/new` still open the app (with an HTTP 404 status, which the browser ignores).
+
+### 3b. Vercel
 
 1. Vercel → **Add New** → **Project** → import this repo. Set **Root Directory** to `frontend`. The rest comes from [`frontend/vercel.json`](../frontend/vercel.json).
 2. Environment variables (Production):
@@ -58,5 +81,5 @@ New deploys are picked up automatically the next time the app is opened.
 
 - [ ] Sign-ups disabled in Supabase
 - [ ] `https://<api>/health` → ok; `https://<api>/techniques` without a token → 401
-- [ ] Logging in on the Vercel URL shows the technique library
+- [ ] Logging in on the GitHub Pages / Vercel URL shows the technique library
 - [ ] App installed on the phone's home screen and opens full screen

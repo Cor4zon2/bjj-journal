@@ -15,7 +15,7 @@ The canvas has two pages: **Mobile** (Home, Map, Log, Exercises, Mistakes, Mind,
 ## Status
 
 - Phase 1 (technique library): 17 seed techniques across guard pulls, the De La Riva tree and white belt fundamentals. Browse and filter them, then edit steps, key details, notes and mastery from a phone. YouTube links play inline and Instagram Reels open in the app. No video links are seeded; add your own from a technique page, and when a technique has none, the page offers a YouTube search.
-- Phase 2 (auth and deployment): Supabase login for a single owner account, JWT checks on every API route except `/health`, Render + Vercel deploy config, installable PWA. See [docs/DEPLOY.md](docs/DEPLOY.md) to put it online.
+- Phase 2 (auth and deployment): Supabase login for a single owner account, JWT checks on every API route except `/health`, Render + GitHub Pages / Vercel deploy config, installable PWA. See [docs/DEPLOY.md](docs/DEPLOY.md) to put it online.
 - Phase 3 (class log and mistakes): a "Log today's class" form built for the phone. Date, class type, duration and energy are one-tap chips; techniques are picked by quick search and marked taught / drilled / hit in rolling; mistakes are added inline, linked to a technique or a position. Hits in rolling count towards the technique's "times hit". Class history with edit and delete, and a Mistakes tab to move each mistake Open → Working on it → Fixed. A half-filled log is kept on the phone, survives losing signal or closing the app, and is sent once the phone is back online; a retried save never creates the class twice.
 - Phase 4 (progress and Home): a Home screen with belt and stripes (set by hand), classes, mat time, classes this month, the six stats out of 10, the weekly training streak, up to 5 focus techniques (picked with **Focus** on a technique page) and the top mistake this month, plus the **Log today's class** button. A technique is locked until its prerequisites reach Drilled; raising one to Drilled shows what it unlocked. Logging a technique in a class raises its mastery (taught → Seen, drilled → Drilled, hit → Hit in rolling) and never lowers it.
 
@@ -101,6 +101,6 @@ backend/    FastAPI app (uv, Ruff, mypy, pytest)
 frontend/   React + TypeScript + Vite + Tailwind (ESLint, Prettier, Vitest)
 docker-compose.yml   local Postgres + backend + frontend
 render.yaml          Render Blueprint for the API
-docs/DEPLOY.md       Supabase, Render and Vercel setup
+docs/DEPLOY.md       Supabase, Render, GitHub Pages and Vercel setup
 Makefile    dev, lint, typecheck, test, check
 ```

@@ -33,7 +33,7 @@ export default function App() {
   const [queryClient] = useState(createQueryClient)
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <AuthGate>
           <AppRoutes />
         </AuthGate>
